@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://xiaoxin.zone/2021/04/15/cve-2021-24093-windows-tu-xing-zu-jian-yuan-cheng-zhi-xing-dai-ma-lou-dong-fen-xi/</loc>
+    <lastmod>2021-04-15</lastmod>
+  </url>
+  <url>
+    <loc>http://xiaoxin.zone/2021/04/15/house-of-kiwi/</loc>
+    <lastmod>2021-04-15</lastmod>
+  </url>
+  <url>
+    <loc>http://xiaoxin.zone/2021/04/03/cve-2017-11543-tcpdump-yue-jie-fang-wen-lou-dong/</loc>
+    <lastmod>2021-04-15</lastmod>
+  </url>
+  <url>
+    <loc>http://xiaoxin.zone/2021/04/01/d-link-dir-859-cve-201917621-wei-shou-quan-ming-ling-zhi-xing-lou-dong-fen-xi/</loc>
+    <lastmod>2021-03-31</lastmod>
+  </url>
+  <url>
     <loc>http://xiaoxin.zone/2021/03/21/cve-2021-3156-sudo-ti-quan-lou-dong-dui-yi-chu-diao-shi-fen-xi/</loc>
-    <lastmod>2021-03-21</lastmod>
+    <lastmod>2021-03-31</lastmod>
   </url>
   <url>
     <loc>http://xiaoxin.zone/2021/02/06/si-ke-lu-you-qi-rv110w-cve-2020-3331-cve-2020-3323-lou-dong-fu-xian/</loc>
