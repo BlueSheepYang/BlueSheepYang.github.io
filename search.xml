@@ -892,9 +892,9 @@
       
         <tags>
             
-            <tag> 2.23 FSOP </tag>
-            
             <tag> io leak </tag>
+            
+            <tag> 2.23 FSOP </tag>
             
             <tag> off by null </tag>
             
@@ -1541,9 +1541,9 @@
       
         <tags>
             
-            <tag> kernel-UAF </tag>
-            
             <tag> kernel </tag>
+            
+            <tag> kernel-UAF </tag>
             
         </tags>
       
@@ -1620,11 +1620,11 @@
       
         <tags>
             
-            <tag> kernel </tag>
-            
             <tag> kernel-HeapOverflow </tag>
             
             <tag> kernel-stringFormat </tag>
+            
+            <tag> kernel </tag>
             
         </tags>
       
@@ -1651,9 +1651,9 @@
             
             <tag> kernel-ROP </tag>
             
-            <tag> kernel-canary </tag>
-            
             <tag> kernel-smep </tag>
+            
+            <tag> kernel-canary </tag>
             
         </tags>
       
@@ -1705,9 +1705,9 @@
       
         <tags>
             
-            <tag> kernel-UAF </tag>
-            
             <tag> kernel </tag>
+            
+            <tag> kernel-UAF </tag>
             
         </tags>
       
