@@ -648,6 +648,526 @@ $('.bg-cover').css('background-image', 'url(/medias/banner/' + new Date().getDay
             
             <div class="article col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
+                    <a href="/2020/10/20/2019-d3ctf-bu-fen-pwn-jie-ti/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="2019-D3CTF部分PWN解题">
+                            
+                            <span class="card-title">2019-D3CTF部分PWN解题</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            Summaryezfile：利用UAF来修改stdin的fileno为3，然后再栈溢出控制rdi为.flag然后返回到open fd的位置。这个时候将.flag的内容做为名字输入再打印出来。就可以泄露flag了。注意改到stdin位置和栈地
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-20
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fa fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/2019-Game/" class="post-category" target="_blank">
+                                    2019 Game
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/UAF/" target="_blank">
+                            <span class="chip bg-color">UAF</span>
+                        </a>
+                        
+                        <a href="/tags/栈溢出/" target="_blank">
+                            <span class="chip bg-color">栈溢出</span>
+                        </a>
+                        
+                        <a href="/tags/libc-2-29-double-free/" target="_blank">
+                            <span class="chip bg-color">libc 2.29 double free</span>
+                        </a>
+                        
+                        <a href="/tags/malloc-consolidation/" target="_blank">
+                            <span class="chip bg-color">malloc_consolidation</span>
+                        </a>
+                        
+                        <a href="/tags/io-leak/" target="_blank">
+                            <span class="chip bg-color">io leak</span>
+                        </a>
+                        
+                        <a href="/tags/栈上的格式化字符串/" target="_blank">
+                            <span class="chip bg-color">栈上的格式化字符串</span>
+                        </a>
+                        
+                        <a href="/tags/打开输出流/" target="_blank">
+                            <span class="chip bg-color">打开输出流</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2020/10/20/2020-n1ctf-bu-fen-pwn-jie-ti/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="2020-N1CTF部分PWN解题">
+                            
+                            <span class="card-title">2020-N1CTF部分PWN解题</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            前言tag：hijacking tcache_perthread_struct、libc 2.31、C++、
+easywrite是2.31题目，改掉vmmap的地址中 tcache_perthread_struct地址为我们可控内存，写fr
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-20
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fa fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/2020-Game/" class="post-category" target="_blank">
+                                    2020 Game
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/C-PWN初探/" target="_blank">
+                            <span class="chip bg-color">C++ PWN初探</span>
+                        </a>
+                        
+                        <a href="/tags/hijacking-tcache-perthread-struct/" target="_blank">
+                            <span class="chip bg-color">hijacking tcache_perthread_struct</span>
+                        </a>
+                        
+                        <a href="/tags/libc-2-31/" target="_blank">
+                            <span class="chip bg-color">libc 2.31</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2020/10/20/2020-xi-hu-lun-jian-bu-fen-pwn-jie-ti/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/23.jpg" class="responsive-img" alt="2020-西湖论剑部分PWN解题">
+                            
+                            <span class="card-title">2020-西湖论剑部分PWN解题</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            0x01 summarymmutage：两个洞一个double free和栈溢出，栈溢出后面接一个输出可以leak canary，由于给了栈地址并且可以edit stack所以可以double free改fd到stack上，这样就可以rop
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-20
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fa fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/2020-Game/" class="post-category" target="_blank">
+                                    2020 Game
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/double-free/" target="_blank">
+                            <span class="chip bg-color">double free</span>
+                        </a>
+                        
+                        <a href="/tags/非栈上的格式化字符串/" target="_blank">
+                            <span class="chip bg-color">非栈上的格式化字符串</span>
+                        </a>
+                        
+                        <a href="/tags/mips/" target="_blank">
+                            <span class="chip bg-color">mips</span>
+                        </a>
+                        
+                        <a href="/tags/劫持栈/" target="_blank">
+                            <span class="chip bg-color">劫持栈</span>
+                        </a>
+                        
+                        <a href="/tags/模拟http/" target="_blank">
+                            <span class="chip bg-color">模拟http</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2020/10/20/hitcon-training-xi-lie-xue-xi-ji-lu/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="Hitcon Training系列学习记录">
+                            
+                            <span class="card-title">Hitcon Training系列学习记录</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            前言未入门时做hitcon-training系列收获很大，怀着一颗感恩的心来整理writeup
+Lab1
+
+直接上脚本吧
+from pwn import *
+cipher = [7, 59, 25, 2, 11, 16, 61, 30, 9
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-20
+                            </span>
+                            <span class="publish-author">
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/hitcon-training系列/" target="_blank">
+                            <span class="chip bg-color">hitcon training系列</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2020/10/19/house-of-husk-xue-xi-ji-lu/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="House of husk学习记录">
+                            
+                            <span class="card-title">House of husk学习记录</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            0x00 原理这种攻击方式主要是利用了printf的一个调用链，应用场景是只能分配较大chunk时(超过fastbin)，存在或可以构造出UAF漏洞。类似于之前改global_max_fast后覆盖到top chunk的那种情况，只是后续利
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-19
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fa fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/补充知识/" class="post-category" target="_blank">
+                                    补充知识
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/house-of-husk/" target="_blank">
+                            <span class="chip bg-color">house of husk</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2020/10/09/2019-sctf-bu-fen-pwn-ti-fu-pan/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="2019 SCTF部分pwn题复盘">
+                            
+                            <span class="card-title">2019 SCTF部分pwn题复盘</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            [toc]
+easy_heap查看文件
+2.23 io attack
+io leak
+off by null
+## IDA分析
+(1).创建：
+
+
+（2）delete
+
+
+（3）edit
+
+
+off by null
+
+思路
+利用off by
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-09
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fa fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/2019-Game/" class="post-category" target="_blank">
+                                    2019 Game
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/2-23-FSOP/" target="_blank">
+                            <span class="chip bg-color">2.23 FSOP</span>
+                        </a>
+                        
+                        <a href="/tags/io-leak/" target="_blank">
+                            <span class="chip bg-color">io leak</span>
+                        </a>
+                        
+                        <a href="/tags/off-by-null/" target="_blank">
+                            <span class="chip bg-color">off by null</span>
+                        </a>
+                        
+                        <a href="/tags/格式化字符串/" target="_blank">
+                            <span class="chip bg-color">格式化字符串</span>
+                        </a>
+                        
+                        <a href="/tags/2-27-hijacking-tcache-header/" target="_blank">
+                            <span class="chip bg-color">2.27 hijacking tcache header</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2020/10/09/2020-de1ctf-bu-fen-pwn-ti-fu-pan/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="2020 De1CTF部分pwn题复盘">
+                            
+                            <span class="card-title">2020 De1CTF部分pwn题复盘</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            stl_container查看文件
+保护全开
+2.27 libc，C++题
+vector释放机制漏洞
+
+IDA分析题目提供四个机制：list、vector、stack、queue每个机制下都有一个小菜单，分别是create、delete、s
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-09
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fa fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/C-PWN初探/" class="post-category" target="_blank">
+                                    C++ PWN初探
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/UAF/" target="_blank">
+                            <span class="chip bg-color">UAF</span>
+                        </a>
+                        
+                        <a href="/tags/double-free/" target="_blank">
+                            <span class="chip bg-color">double free</span>
+                        </a>
+                        
+                        <a href="/tags/vector释放漏洞/" target="_blank">
+                            <span class="chip bg-color">vector释放漏洞</span>
+                        </a>
+                        
+                        <a href="/tags/C-PWN初探/" target="_blank">
+                            <span class="chip bg-color">C++ PWN初探</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2020/10/09/php-pwn-huan-jing-da-jian-ji-yi-ge-xiao-demo/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/23.jpg" class="responsive-img" alt="php-pwn环境搭建及一个小demo">
+                            
+                            <span class="card-title">php-pwn环境搭建及一个小demo</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            php拓展模块开发我们开发的是一个漏洞函数，为了后面进行调试
+环境搭建本机的环境是Ubuntu18.04，我们使用下面的命令来简单的搭建开发环境
+安装php，以及php开发包头 
+$&gt; sudo apt install php php
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-09
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fa fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/web-Pwn/" class="post-category" target="_blank">
+                                    web-Pwn
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/web-pwn/" target="_blank">
+                            <span class="chip bg-color">web pwn</span>
+                        </a>
+                        
+                        <a href="/tags/php-pwn环境搭建/" target="_blank">
+                            <span class="chip bg-color">php-pwn环境搭建</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/2020/09/25/2020-guo-sai-ban-jue-sai-pwn-ti-ji-lu/" target="_blank">
+                        <div class="card-image">
+                            
+                            
+                            <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="2020-国赛半决赛PWN题记录">
+                            
+                            <span class="card-title">2020-国赛半决赛PWN题记录</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                            半决赛day1pwn1简单的分析栈溢出，栈迁移后利用函数打印libc地址，最后system(“/bin/sh”)，这个题当时做调试的时候出了些问题，这里有这么几个点：1.没有用raw_input()暂停。2.对32位连续调用函数的清空栈的做
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-09-25
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fa fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/2020-Game/" class="post-category" target="_blank">
+                                    2020 Game
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
+            
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
                     <a href="/2020/09/24/2020-guo-sai-chu-sai-pwn-ti-ji-lu/" target="_blank">
                         <div class="card-image">
                             
@@ -855,592 +1375,6 @@ create功能：
                 </div>
             </div>
             
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/09/15/reverse-shell/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="Reverse Shell">
-                            
-                            <span class="card-title">Reverse Shell</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            0x01 前言之前一直没了解反弹shell的真正含义，今天刚好发现自己pwnable的排名有点瓦，做道题冲个分吧…这篇文章参考了m4x师傅的文章，总结下来供自己学习：
-0x02 shell是什么简单的来说shell就是用户操作系统的入口，通
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-09-15
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/补充知识/" class="post-category" target="_blank">
-                                    补充知识
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/反弹shell/" target="_blank">
-                            <span class="chip bg-color">反弹shell</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/09/09/2020-di-wu-kong-jian-an-quan-da-sai/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/23.jpg" class="responsive-img" alt="2020 第五空间安全大赛">
-                            
-                            <span class="card-title">2020 第五空间安全大赛</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            twice查看文件
-PIE没开、RELRO没开.
-栈迁移
-
-IDA分析
-程序很简单，就是循环两次来进行输入，再打印出来。输入的地方有栈溢出，第一次只能溢出1个byte，第二次可以溢出0x18个byte。
-
-思路第一步：利用溢出一个字节来泄露
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-09-09
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/2020-Game/" class="post-category" target="_blank">
-                                    2020 Game
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/栈溢出/" target="_blank">
-                            <span class="chip bg-color">栈溢出</span>
-                        </a>
-                        
-                        <a href="/tags/unlink/" target="_blank">
-                            <span class="chip bg-color">unlink</span>
-                        </a>
-                        
-                        <a href="/tags/栈迁移/" target="_blank">
-                            <span class="chip bg-color">栈迁移</span>
-                        </a>
-                        
-                        <a href="/tags/libc-2-27-double-free/" target="_blank">
-                            <span class="chip bg-color">libc 2.27 double free</span>
-                        </a>
-                        
-                        <a href="/tags/arm/" target="_blank">
-                            <span class="chip bg-color">arm</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/09/07/lu-you-qi-chang-jian-lou-dong-zong-jie/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="路由器常见漏洞总结">
-                            
-                            <span class="card-title">路由器常见漏洞总结</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            前言，基本也是《0day路由器漏洞挖掘》这本书的读书笔记
-路由器web漏洞XSS漏洞针对路由器的web管理页面，例如：攻击者发现路由器管理页面包含一个反射型XSS，就可以构建一个利用这个XSS漏洞的URL，并且将其通过邮件或QQ发送给受害者
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-09-07
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/从0学习路由器/" class="post-category" target="_blank">
-                                    从0学习路由器
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/知识总结/" target="_blank">
-                            <span class="chip bg-color">知识总结</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/09/07/c-pwn-chu-tan-yi/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="C++ PWN初探（一）">
-                            
-                            <span class="card-title">C++ PWN初探（一）</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            EasyCpp查看文件
-首先看到不能hijacking GOT。
-
-
-IDA分析查看源码得知这是一个C++程序。由于之前没做过，有很多机制并没有很清楚。
-问题一：在edit中析构函数会free(栈上的一个地址)，而这个地址是可以更改的。我们
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-09-07
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/补充知识/" class="post-category" target="_blank">
-                                    补充知识
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/C-PWN初探/" target="_blank">
-                            <span class="chip bg-color">C++ PWN初探</span>
-                        </a>
-                        
-                        <a href="/tags/unsorted-bin-attack/" target="_blank">
-                            <span class="chip bg-color">unsorted bin attack</span>
-                        </a>
-                        
-                        <a href="/tags/IO-attack/" target="_blank">
-                            <span class="chip bg-color">IO attack</span>
-                        </a>
-                        
-                        <a href="/tags/fastbin-attack/" target="_blank">
-                            <span class="chip bg-color">fastbin attack</span>
-                        </a>
-                        
-                        <a href="/tags/虚表劫持/" target="_blank">
-                            <span class="chip bg-color">虚表劫持</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/09/01/2019-xman-dong-ling-ying-jie-ying-sai/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="2019-XMAN冬令营结营赛">
-                            
-                            <span class="card-title">2019-XMAN冬令营结营赛</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            filesystem0x01 查看文件
-
-0x02 IDA分析
-它这里只是清空了size的部分，而chunk address的地址没有清空，double free
-
-
-0x03 思路首先劫持chunk list，劫持之后先puts出libc
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-09-01
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/2019-Game/" class="post-category" target="_blank">
-                                    2019 Game
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/off-by-one/" target="_blank">
-                            <span class="chip bg-color">off by one</span>
-                        </a>
-                        
-                        <a href="/tags/格式化字符串/" target="_blank">
-                            <span class="chip bg-color">格式化字符串</span>
-                        </a>
-                        
-                        <a href="/tags/2-23-double-free/" target="_blank">
-                            <span class="chip bg-color">2.23 double free</span>
-                        </a>
-                        
-                        <a href="/tags/canary-ssp-leak/" target="_blank">
-                            <span class="chip bg-color">canary ssp leak</span>
-                        </a>
-                        
-                        <a href="/tags/多线程堆溢出/" target="_blank">
-                            <span class="chip bg-color">多线程堆溢出</span>
-                        </a>
-                        
-                        <a href="/tags/2-27-double-free/" target="_blank">
-                            <span class="chip bg-color">2.27 double free</span>
-                        </a>
-                        
-                        <a href="/tags/canary/" target="_blank">
-                            <span class="chip bg-color">canary</span>
-                        </a>
-                        
-                        <a href="/tags/global-max-fast/" target="_blank">
-                            <span class="chip bg-color">global max fast</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/08/30/2019-shang-hai-shi-da-xue-sheng-xin-xi-an-quan-jing-sai/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="2019-上海市大学生信息安全竞赛">
-                            
-                            <span class="card-title">2019-上海市大学生信息安全竞赛</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            Boring_heap0x01 查看文件
-保护全开
-
-考点：abs漏洞、overlapping
-0x02 IDA分析创建：（指定三个size的大小：0x20、0x30、0x40）没什么漏洞
-
-删除（无UAF）但是我们看到有abs函数，上网查
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-08-30
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/2019-Game/" class="post-category" target="_blank">
-                                    2019 Game
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/UAF/" target="_blank">
-                            <span class="chip bg-color">UAF</span>
-                        </a>
-                        
-                        <a href="/tags/abs漏洞/" target="_blank">
-                            <span class="chip bg-color">abs漏洞</span>
-                        </a>
-                        
-                        <a href="/tags/overlapping/" target="_blank">
-                            <span class="chip bg-color">overlapping</span>
-                        </a>
-                        
-                        <a href="/tags/unlink/" target="_blank">
-                            <span class="chip bg-color">unlink</span>
-                        </a>
-                        
-                        <a href="/tags/爆破libc/" target="_blank">
-                            <span class="chip bg-color">爆破libc</span>
-                        </a>
-                        
-                        <a href="/tags/glibc-2-23/" target="_blank">
-                            <span class="chip bg-color">glibc 2.23</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/08/30/2020-diao-yu-bei/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="2020-钓鱼杯">
-                            
-                            <span class="card-title">2020-钓鱼杯</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            veryeasy0x01 查看文件
-保护全开，2.27 libc
-**考点：**2.27 double free，io file attack
-
-0x02 IDA分析
-标准的菜单题，有创建、编辑、删除，没有打印信息功能
-
-创建功能，这里就是
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-08-30
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/2020-Game/" class="post-category" target="_blank">
-                                    2020 Game
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/2-27-double-free/" target="_blank">
-                            <span class="chip bg-color">2.27 double free</span>
-                        </a>
-                        
-                        <a href="/tags/IO-attack/" target="_blank">
-                            <span class="chip bg-color">IO attack</span>
-                        </a>
-                        
-                        <a href="/tags/proc-self-文件知识/" target="_blank">
-                            <span class="chip bg-color">/proc/self/文件知识</span>
-                        </a>
-                        
-                        <a href="/tags/index越界/" target="_blank">
-                            <span class="chip bg-color">index越界</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/08/09/2020-lan-mao-bei-pwn/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="2020-蓝帽杯-PWN">
-                            
-                            <span class="card-title">2020-蓝帽杯-PWN</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            0x00 前言参加了2020蓝帽杯的线上赛，成功被大佬带飞，如果再给点时间，PWN就AK了，P1umer师傅在比赛结束的15分钟做出了全场最少解的题目，tql！
-0x01 camp查看文件
-保护全开
-
-IDA分析主函数：
-
-
-STDOUT功
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-08-09
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/2020-Game/" class="post-category" target="_blank">
-                                    2020 Game
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/IO-attack/" target="_blank">
-                            <span class="chip bg-color">IO attack</span>
-                        </a>
-                        
-                        <a href="/tags/QuickJS引擎/" target="_blank">
-                            <span class="chip bg-color">QuickJS引擎</span>
-                        </a>
-                        
-                        <a href="/tags/2-27-off-by-one/" target="_blank">
-                            <span class="chip bg-color">2.27 off-by-one</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/2020/08/06/2020-geekpwn-childshell/" target="_blank">
-                        <div class="card-image">
-                            
-                            
-                            <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="2020-GeekPwn-ChildShell">
-                            
-                            <span class="card-title">2020-GeekPwn-ChildShell</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                            1.查看文件
-这是一个需要chroot沙箱逃逸的题目
-# 2.IDA分析
-
-多了一个chroot操作，将我们的根目录置为sandbox，而flag在外面。其它的程序逻辑和之前的easyshell相同。
-# 3.思路
-
-劫持malloc_ho
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-08-06
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fa fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/2020-Game/" class="post-category" target="_blank">
-                                    2020 Game
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/格式化字符串/" target="_blank">
-                            <span class="chip bg-color">格式化字符串</span>
-                        </a>
-                        
-                        <a href="/tags/劫持malloc-hook/" target="_blank">
-                            <span class="chip bg-color">劫持malloc_hook</span>
-                        </a>
-                        
-                        <a href="/tags/需要特殊的gadgets接大量ROP/" target="_blank">
-                            <span class="chip bg-color">需要特殊的gadgets接大量ROP</span>
-                        </a>
-                        
-                        <a href="/tags/沙箱逃逸/" target="_blank">
-                            <span class="chip bg-color">沙箱逃逸</span>
-                        </a>
-                        
-                        <a href="/tags/GeekPwn-2020/" target="_blank">
-                            <span class="chip bg-color">GeekPwn 2020</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-            
         </div>
     </article>
 
@@ -1458,7 +1392,7 @@ STDOUT功
             
         </div>
         <div class="page-info col m4 l4 hide-on-small-only">
-            <div class="center-align b-text-gray">4 / 5</div>
+            <div class="center-align b-text-gray">4 / 6</div>
         </div>
         <div class="col s6 m4 l4">
             
@@ -1498,7 +1432,7 @@ STDOUT功
 
             
                 &nbsp; | &nbsp;字数统计:&nbsp;
-                <span class="white-color">117.9k</span> 字
+                <span class="white-color">133.9k</span> 字
             
 
             
