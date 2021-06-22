@@ -1,12 +1,4 @@
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-jiu-fastjson-zu-jian-java-fan-xu-hua-xue-xi/
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-ba-cong-spring-fan-xu-lie-hua-gong-ji-zai-tan-jndi-zhu-ru/
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-qi-ldap-jndi-gong-ji-fang-shi/
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-liu-jndi-zhu-ru-li-yong-demo-diao-shi/
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-wu-jndi-zhu-ru-yuan-li-ji-li-yong-chu-tan/
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-si-ysoserial-exploit-jrmpclient-jrmplistener-lian-xue-xi/
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-san-urldns-lian-xue-xi/
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-er-vnctf-2021-easyspringmvc/
-http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-yi-chu-shi-java-fan-xu-lie-hua-lou-dong/
+http://xiaoxin.zone/2021/06/22/java-fan-xu-lie-hua-ru-men/
 http://xiaoxin.zone/2021/04/15/cve-2021-24093-windows-tu-xing-zu-jian-yuan-cheng-zhi-xing-dai-ma-lou-dong-fen-xi/
 http://xiaoxin.zone/2021/04/15/house-of-kiwi/
 http://xiaoxin.zone/2021/04/03/cve-2017-11543-tcpdump-yue-jie-fang-wen-lou-dong/

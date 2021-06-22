@@ -1,40 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-jiu-fastjson-zu-jian-java-fan-xu-hua-xue-xi/</loc>
-    <lastmod>2021-05-23</lastmod>
-  </url>
-  <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-ba-cong-spring-fan-xu-lie-hua-gong-ji-zai-tan-jndi-zhu-ru/</loc>
-    <lastmod>2021-05-23</lastmod>
-  </url>
-  <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-qi-ldap-jndi-gong-ji-fang-shi/</loc>
-    <lastmod>2021-05-23</lastmod>
-  </url>
-  <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-liu-jndi-zhu-ru-li-yong-demo-diao-shi/</loc>
-    <lastmod>2021-05-23</lastmod>
-  </url>
-  <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-wu-jndi-zhu-ru-yuan-li-ji-li-yong-chu-tan/</loc>
-    <lastmod>2021-05-23</lastmod>
-  </url>
-  <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-san-urldns-lian-xue-xi/</loc>
-    <lastmod>2021-05-23</lastmod>
-  </url>
-  <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-si-ysoserial-exploit-jrmpclient-jrmplistener-lian-xue-xi/</loc>
-    <lastmod>2021-05-23</lastmod>
-  </url>
-  <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-er-vnctf-2021-easyspringmvc/</loc>
-    <lastmod>2021-05-23</lastmod>
-  </url>
-  <url>
-    <loc>http://xiaoxin.zone/2021/05/23/java-fan-xu-lie-hua-ru-men-yi-chu-shi-java-fan-xu-lie-hua-lou-dong/</loc>
-    <lastmod>2021-05-23</lastmod>
+    <loc>http://xiaoxin.zone/2021/06/22/java-fan-xu-lie-hua-ru-men/</loc>
+    <lastmod>2021-06-22</lastmod>
   </url>
   <url>
     <loc>http://xiaoxin.zone/2021/04/15/cve-2021-24093-windows-tu-xing-zu-jian-yuan-cheng-zhi-xing-dai-ma-lou-dong-fen-xi/</loc>
