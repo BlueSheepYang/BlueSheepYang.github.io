@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xiaoxin.zone/"/>
-  <updated>2021-06-22T04:28:51.449Z</updated>
+  <updated>2021-06-22T04:56:56.477Z</updated>
   <id>http://xiaoxin.zone/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>java反序列化入门</title>
+    <title>java反序列化总结</title>
     <link href="http://xiaoxin.zone/2021/06/22/java-fan-xu-lie-hua-ru-men/"/>
     <id>http://xiaoxin.zone/2021/06/22/java-fan-xu-lie-hua-ru-men/</id>
     <published>2021-06-22T00:37:05.000Z</published>
-    <updated>2021-06-22T04:28:51.449Z</updated>
+    <updated>2021-06-22T04:56:56.477Z</updated>
     
     <summary type="html">
     
