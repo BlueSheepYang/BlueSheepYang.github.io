@@ -11,6 +11,12 @@
         <content type="html"><![CDATA[<script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
       
       
+      <categories>
+          
+          <category> Java反序列化 </category>
+          
+      </categories>
+      
       
     </entry>
     
@@ -1664,9 +1670,9 @@
             
             <tag> kernel-ROP </tag>
             
-            <tag> kernel-smep </tag>
-            
             <tag> kernel-canary </tag>
+            
+            <tag> kernel-smep </tag>
             
         </tags>
       
