@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://xiaoxin.zone/"/>
-  <updated>2021-06-22T02:45:06.258Z</updated>
+  <updated>2021-06-22T04:28:51.449Z</updated>
   <id>http://xiaoxin.zone/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://xiaoxin.zone/2021/06/22/java-fan-xu-lie-hua-ru-men/"/>
     <id>http://xiaoxin.zone/2021/06/22/java-fan-xu-lie-hua-ru-men/</id>
     <published>2021-06-22T00:37:05.000Z</published>
-    <updated>2021-06-22T02:45:06.258Z</updated>
+    <updated>2021-06-22T04:28:51.449Z</updated>
     
     <summary type="html">
     
@@ -29,11 +29,8 @@
       
         
         
-          &lt;script&gt;
-        document.querySelectorAll(&#39;.github-emoji&#39;)
-          .forEach(el =&gt; {
-            if (!el.dataset.src) { return; }
-       
+          &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;本篇文章初步学习java反序列化以及反序列化利用需要掌握的java反射机制，文章内容借鉴多篇前人文章，总结仅供学习和参考&lt;/p&gt;
+&lt;h1
         
       
     
