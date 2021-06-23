@@ -1708,9 +1708,9 @@
             
             <tag> kernel-ROP </tag>
             
-            <tag> kernel-smep </tag>
-            
             <tag> kernel-canary </tag>
+            
+            <tag> kernel-smep </tag>
             
         </tags>
       
